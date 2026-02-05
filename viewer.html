@@ -19,23 +19,49 @@
       border: 1px solid #ccc;
       border-radius: 6px;
       background: #fafafa;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .detail-section {
+      padding: 10px;
+      border-radius: 6px;
+      background: #fff;
+      border: 1px solid #e6e6e6;
+    }
+
+    .detail-title {
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: #222;
+    }
+
+    .detail-value {
+      color: #111;
+      line-height: 1.4;
     }
 
     .detail-row {
-      margin-bottom: 8px;
-      padding-bottom: 6px;
-      border-bottom: 1px solid #eee;
+      margin-bottom: 6px;
     }
 
     .detail-label {
-      font-weight: bold;
+      font-weight: 600;
       color: #333;
+      display: inline-block;
+      width: 110px;
     }
 
     #search-input {
-      width: 250px;
+      width: 300px;
       padding: 6px;
       margin-bottom: 10px;
+    }
+
+    a.cdli-link {
+      color: #0b66c3;
+      text-decoration: none;
     }
   </style>
 </head>
@@ -51,33 +77,52 @@
 <h3>Record Details</h3>
 <div id="detail-card">Click a row to view details.</div>
 
+<!-- PapaParse for robust CSV parsing -->
+<script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
 <!-- Tabulator JS -->
 <script src="https://unpkg.com/tabulator-tables@5.5.0/dist/js/tabulator.min.js"></script>
 
 <script>
-  // Load CSV from GitHub (raw URL)
+  // Raw CSV URL (use raw.githubusercontent.com)
   const csvUrl = "https://raw.githubusercontent.com/adeloucas/Database_test/main/house%20f.csv";
+
+  // Helper to render a labeled field only if value exists
+  function renderField(label, value) {
+    if (value === undefined || value === null) return "";
+    const v = String(value).trim();
+    if (v === "" || v === "-" ) return "";
+    return `<div class="detail-row"><span class="detail-label">${label}</span><span class="detail-value">${escapeHtml(v)}</span></div>`;
+  }
+
+  // Escape HTML to avoid accidental markup injection
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
 
   async function loadCSV() {
     const response = await fetch(csvUrl);
     const text = await response.text();
 
-    const rows = text.split("\n").map(r => r.split(","));
-    const headers = rows[0];
-    const data = rows
-      .slice(1)
-      .filter(row => row.some(cell => cell.trim() !== ""))  // remove empty rows
-      .map(row => {
-        let obj = {};
-        headers.forEach((h, i) => obj[h] = row[i] || "");
-        return obj;
-      });
+    const parsed = Papa.parse(text, {
+      header: true,
+      skipEmptyLines: true,
+      dynamicTyping: false,
+      transformHeader: h => h.trim()
+    });
 
-
-    return { headers, data };
+    return {
+      headers: parsed.meta.fields || [],
+      data: parsed.data || []
+    };
   }
 
   loadCSV().then(({ headers, data }) => {
+    // Build Tabulator columns from headers
     const columns = headers.map(h => ({
       title: h,
       field: h,
@@ -96,19 +141,76 @@
         const record = row.getData();
         const detailDiv = document.getElementById("detail-card");
 
-        let html = "";
-        for (const key in record) {
-          html += `
-            <div class="detail-row">
-              <div class="detail-label">${key}</div>
-              <div>${record[key]}</div>
-            </div>
-          `;
+        // Build grouped sections
+        // Group 1: Year | Month | Day
+        const year = record["Year"] || record["year"] || "";
+        const month = record["Month"] || record["month"] || "";
+        const day = record["Day"] || record["day"] || "";
+        let dateHtml = "";
+        dateHtml += renderField("Year", year);
+        dateHtml += renderField("Month", month);
+        dateHtml += renderField("Day", day);
+
+        // Group 2: Text ID
+        const textId = record["Text ID"] || record["TextID"] || record["Text_Id"] || record["Text id"] || "";
+        let textIdHtml = "";
+        if (textId && String(textId).trim() !== "") {
+          // If CDLI id exists, make a link later; otherwise show plain text
+          textIdHtml += renderField("Text ID", textId);
         }
-        detailDiv.innerHTML = html;
+
+        // Group 3: Genre | Dossier
+        const genre = record["Genre"] || record["genre"] || "";
+        const dossier = record["Dossier"] || record["dossier"] || "";
+        let genreHtml = "";
+        genreHtml += renderField("Genre", genre);
+        genreHtml += renderField("Dossier", dossier);
+
+        // Group 4: CDLI (if present)
+        const cdli = record["CDLI"] || record["Cdli"] || record["cdli"] || record["CDLI ID"] || "";
+        let cdliHtml = "";
+        if (cdli && String(cdli).trim() !== "") {
+          const cdliEsc = escapeHtml(cdli);
+          // Example CDLI link pattern; adjust if your CDLI values are full URLs or IDs
+          let cdliLink = "";
+          if (/^https?:\/\//i.test(cdli)) {
+            cdliLink = `<a class="cdli-link" href="${cdliEsc}" target="_blank" rel="noopener noreferrer">${cdliEsc}</a>`;
+          } else {
+            // If cdli looks like an ID, link to CDLI search page (adjust if you prefer)
+            cdliLink = `<a class="cdli-link" href="https://cdli.ucla.edu/search/search_results.php?SearchMode=Text&ObjectID=${encodeURIComponent(cdli)}" target="_blank" rel="noopener noreferrer">${cdliEsc}</a>`;
+          }
+          cdliHtml += `<div class="detail-row"><span class="detail-label">CDLI</span><span class="detail-value">${cdliLink}</span></div>`;
+        }
+
+        // Compose final HTML with sections, hide sections that are empty
+        let finalHtml = "";
+
+        if (dateHtml) {
+          finalHtml += `<div class="detail-section"><div class="detail-title">Year Month Day</div>${dateHtml}</div>`;
+        }
+
+        if (textIdHtml) {
+          finalHtml += `<div class="detail-section"><div class="detail-title">Text ID</div>${textIdHtml}</div>`;
+        }
+
+        if (genreHtml) {
+          finalHtml += `<div class="detail-section"><div class="detail-title">Genre and Dossier</div>${genreHtml}</div>`;
+        }
+
+        if (cdliHtml) {
+          finalHtml += `<div class="detail-section"><div class="detail-title">CDLI</div>${cdliHtml}</div>`;
+        }
+
+        // If nothing matched, show a fallback
+        if (!finalHtml) {
+          finalHtml = "<div class='detail-section'><div class='detail-title'>No details available</div></div>";
+        }
+
+        detailDiv.innerHTML = finalHtml;
       }
     });
 
+    // Search box
     document.getElementById("search-input").addEventListener("keyup", function () {
       const query = this.value.toLowerCase();
       table.setFilter((row) => {
@@ -117,10 +219,11 @@
         );
       });
     });
+  }).catch(err => {
+    document.getElementById("detail-card").innerText = "Error loading CSV: " + err.message;
+    console.error(err);
   });
 </script>
 
 </body>
 </html>
-
-
