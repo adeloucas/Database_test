@@ -2,6 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dataset Viewer</title>
   <link href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator.min.css" rel="stylesheet">
   
@@ -222,7 +223,7 @@
       // Section 1: Record Details - TextID fields
       const recordFields = renderField("Deloucas ID", record.TextID_D) + 
                           renderField("ARCHIBAB", record.TNum) + 
-                          renderField("CDLI", record.Pnum);
+                          renderField("CDLI", record.Pnum) +
                           renderField("CDLI ID", record.TextID_C) + 
                           renderField("Archibab ID", record.TextNum_A) + 
                           renderField("TextID_A", record.TextID_A);
@@ -298,4 +299,5 @@
   </script>
 </body>
 </html>
+
 
