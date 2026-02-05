@@ -1,228 +1,285 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8">
   <title>House F Dataset Viewer</title>
-
-  <!-- Tabulator CSS -->
   <link href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator.min.css" rel="stylesheet">
-
+  
   <style>
+    /* GLOBAL RESET */
+    * { box-sizing: border-box; }
+    
+    /* BODY */
     body {
       font-family: Arial, sans-serif;
-      margin: 20px;
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
     }
-
-    #detail-card {
-      margin-top: 20px;
-      padding: 15px;
+    
+    h2 { margin: 0 0 20px 0; }
+    
+    /* DESKTOP LAYOUT: 2 columns - table left, details right */
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      grid-template-rows: auto 1fr;
+      gap: 20px;
+      height: calc(100vh - 100px);
+    }
+    
+    /* Search bar: top-left, first row first column */
+    #search-container {
+      grid-column: 1;
+      grid-row: 1;
+      display: flex;
+      gap: 10px;
+    }
+    
+    #search-input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    
+    #clear-search {
+      padding: 10px 20px;
+      cursor: pointer;
+      background: #f0f0f0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    
+    #clear-search:hover { background: #e0e0e0; }
+    
+    /* Table container: bottom-left, second row first column */
+    /* NEW APPROACH: Use flexbox instead of absolute positioning */
+    #table-container {
+      grid-column: 1;
+      grid-row: 2;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+    }
+    
+    /* Table fills the flex container */
+    #table {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+    }
+    
+    /* Detail panel: right side, spans both rows, second column */
+    #detail-panel {
+      grid-column: 2;
+      grid-row: 1 / 3;
       border: 1px solid #ccc;
       border-radius: 6px;
       background: #fafafa;
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
+      padding: 20px;
+      overflow-y: auto;
     }
-
+    
+    #detail-panel h3 { margin: 0 0 15px 0; }
+    
     .detail-section {
-      padding: 10px;
+      padding: 15px;
+      margin-bottom: 12px;
       border-radius: 6px;
       background: #fff;
       border: 1px solid #e6e6e6;
     }
-
+    
     .detail-title {
       font-weight: 700;
-      margin-bottom: 6px;
-      color: #222;
+      margin-bottom: 10px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
-
-    .detail-value {
-      color: #111;
-      line-height: 1.4;
-    }
-
-    .detail-row {
-      margin-bottom: 6px;
-    }
-
+    
+    .detail-row { margin-bottom: 8px; }
+    .detail-row:last-child { margin-bottom: 0; }
+    
     .detail-label {
       font-weight: 600;
-      color: #333;
+      color: #555;
+      min-width: 80px;
       display: inline-block;
-      width: 110px;
     }
-
-    #search-input {
-      width: 300px;
-      padding: 6px;
-      margin-bottom: 10px;
-    }
-
+    
     a.cdli-link {
       color: #0b66c3;
       text-decoration: none;
+    }
+    a.cdli-link:hover { text-decoration: underline; }
+    
+    .empty-state {
+      color: #999;
+      font-style: italic;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    /* TABLET: Stack vertically when screen < 1024px */
+    @media (max-width: 1024px) {
+      .container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto 1fr;
+        height: auto;
+        min-height: calc(100vh - 100px);
+      }
+      
+      #search-container {
+        grid-column: 1;
+        grid-row: 1;
+      }
+      
+      #detail-panel {
+        grid-column: 1;
+        grid-row: 2;
+        max-height: 400px;
+      }
+      
+      #table-container {
+        grid-column: 1;
+        grid-row: 3;
+        min-height: 500px;
+      }
+    }
+    
+    /* MOBILE: Further adjustments < 768px */
+    @media (max-width: 768px) {
+      body { padding: 10px; }
+      
+      #search-container { 
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      #clear-search { width: 100%; }
+      
+      .detail-label {
+        min-width: 60px;
+        font-size: 13px;
+      }
     }
   </style>
 </head>
 
 <body>
+  <h2>House F Dataset</h2>
+  
+  <div class="container">
+    <div id="search-container">
+      <input id="search-input" type="text" placeholder="Search across all fields…">
+      <button id="clear-search">Clear</button>
+    </div>
+    
+    <div id="table-container">
+      <div id="table"></div>
+    </div>
+    
+    <div id="detail-panel">
+      <h3>Record Details</h3>
+      <div id="detail-card">
+        <div class="empty-state">Click a row to view details</div>
+      </div>
+    </div>
+  </div>
 
-<h2>House F Dataset</h2>
+  <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://unpkg.com/tabulator-tables@5.5.0/dist/js/tabulator.min.js"></script>
 
-<input id="search-input" type="text" placeholder="Search…">
-
-<div id="table"></div>
-
-<h3>Record Details</h3>
-<div id="detail-card">Click a row to view details.</div>
-
-<!-- PapaParse for robust CSV parsing -->
-<script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
-<!-- Tabulator JS -->
-<script src="https://unpkg.com/tabulator-tables@5.5.0/dist/js/tabulator.min.js"></script>
-
-<script>
-  // Raw CSV URL (use raw.githubusercontent.com)
-  const csvUrl = "https://raw.githubusercontent.com/adeloucas/Database_test/main/house%20f.csv";
-
-  // Helper to render a labeled field only if value exists
-  function renderField(label, value) {
-    if (value === undefined || value === null) return "";
-    const v = String(value).trim();
-    if (v === "" || v === "-" ) return "";
-    return `<div class="detail-row"><span class="detail-label">${label}</span><span class="detail-value">${escapeHtml(v)}</span></div>`;
-  }
-
-  // Escape HTML to avoid accidental markup injection
-  function escapeHtml(str) {
-    return String(str)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-
-  async function loadCSV() {
-    const response = await fetch(csvUrl);
-    const text = await response.text();
-
-    const parsed = Papa.parse(text, {
-      header: true,
-      skipEmptyLines: true,
-      dynamicTyping: false,
-      transformHeader: h => h.trim()
-    });
-
-    return {
-      headers: parsed.meta.fields || [],
-      data: parsed.data || []
-    };
-  }
-
-  loadCSV().then(({ headers, data }) => {
-    // Build Tabulator columns from headers
-    const columns = headers.map(h => ({
-      title: h,
-      field: h,
-      headerFilter: false,
-      width: 150
-    }));
-
-    const table = new Tabulator("#table", {
-      data: data,
-      layout: "fitDataFill",
-      height: "500px",
-      columns: columns,
-      selectable: 1,
-      reactiveData: true,
-      rowClick: function (e, row) {
-        const record = row.getData();
-        const detailDiv = document.getElementById("detail-card");
-
-        // Build grouped sections
-        // Group 1: Year | Month | Day (using correct capitalization)
-        const year = record["Year"] || "";
-        const month = record["Month"] || "";
-        const day = record["Day"] || "";
-        let dateHtml = "";
-        dateHtml += renderField("Year", year);
-        dateHtml += renderField("Month", month);
-        dateHtml += renderField("Day", day);
-
-        // Group 2: Text ID (using correct capitalization)
-        const textId = record["Text ID"] || "";
-        let textIdHtml = "";
-        if (textId && String(textId).trim() !== "") {
-          textIdHtml += renderField("Text ID", textId);
-        }
-
-        // Group 3: Genre | Dossier (using correct capitalization)
-        const genre = record["Genre"] || "";
-        const dossier = record["Dossier"] || "";
-        let genreHtml = "";
-        genreHtml += renderField("Genre", genre);
-        genreHtml += renderField("Dossier", dossier);
-
-        // Group 4: CDLI (using correct capitalization)
-        const cdli = record["CDLI"] || "";
-        let cdliHtml = "";
-        if (cdli && String(cdli).trim() !== "" && cdli !== "-") {
-          const cdliEsc = escapeHtml(cdli);
-          // Example CDLI link pattern
-          let cdliLink = "";
-          if (/^https?:\/\//i.test(cdli)) {
-            cdliLink = `<a class="cdli-link" href="${cdliEsc}" target="_blank" rel="noopener noreferrer">${cdliEsc}</a>`;
-          } else {
-            // If cdli looks like an ID, link to CDLI search page
-            cdliLink = `<a class="cdli-link" href="https://cdli.ucla.edu/search/search_results.php?SearchMode=Text&ObjectID=${encodeURIComponent(cdli)}" target="_blank" rel="noopener noreferrer">${cdliEsc}</a>`;
-          }
-          cdliHtml += `<div class="detail-row"><span class="detail-label">CDLI</span><span class="detail-value">${cdliLink}</span></div>`;
-        }
-
-        // Compose final HTML with sections, hide sections that are empty
-        let finalHtml = "";
-
-        if (dateHtml) {
-          finalHtml += `<div class="detail-section"><div class="detail-title">Date Information</div>${dateHtml}</div>`;
-        }
-
-        if (textIdHtml) {
-          finalHtml += `<div class="detail-section"><div class="detail-title">Text ID</div>${textIdHtml}</div>`;
-        }
-
-        if (genreHtml) {
-          finalHtml += `<div class="detail-section"><div class="detail-title">Genre and Dossier</div>${genreHtml}</div>`;
-        }
-
-        if (cdliHtml) {
-          finalHtml += `<div class="detail-section"><div class="detail-title">CDLI</div>${cdliHtml}</div>`;
-        }
-
-        // If nothing matched, show a fallback
-        if (!finalHtml) {
-          finalHtml = "<div class='detail-section'><div class='detail-title'>No details available</div></div>";
-        }
-
-        detailDiv.innerHTML = finalHtml;
+  <script>
+    const csvUrl = "https://raw.githubusercontent.com/adeloucas/Database_test/main/house%20f.csv";
+    
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+    
+    function renderField(label, value) {
+      if (!value || value === "-") return "";
+      return `<div class="detail-row"><span class="detail-label">${label}:</span> ${escapeHtml(value)}</div>`;
+    }
+    
+    function displayRecord(record) {
+      let html = "";
+      
+      const dateFields = renderField("Month", record.Month) + 
+                        renderField("Day", record.Day) + 
+                        renderField("Year", record.Year);
+      if (dateFields) html += `<div class="detail-section"><div class="detail-title">Date</div>${dateFields}</div>`;
+      
+      if (record["Text ID"] && record["Text ID"] !== "-") {
+        html += `<div class="detail-section"><div class="detail-title">Text ID</div>${renderField("Text ID", record["Text ID"])}</div>`;
       }
-    });
-
-    // Search box
-    document.getElementById("search-input").addEventListener("keyup", function () {
-      const query = this.value.toLowerCase();
-      table.setFilter((row) => {
-        return Object.values(row.getData()).some(v =>
-          String(v).toLowerCase().includes(query)
-        );
+      
+      const classFields = renderField("Genre", record.Genre) + renderField("Dossier", record.Dossier);
+      if (classFields) html += `<div class="detail-section"><div class="detail-title">Classification</div>${classFields}</div>`;
+      
+      if (record.CDLI && record.CDLI !== "-") {
+        const cdli = escapeHtml(record.CDLI);
+        const link = /^https?:\/\//i.test(record.CDLI) 
+          ? `<a class="cdli-link" href="${cdli}" target="_blank">${cdli}</a>`
+          : `<a class="cdli-link" href="https://cdli.ucla.edu/search/search_results.php?SearchMode=Text&ObjectID=${encodeURIComponent(record.CDLI)}" target="_blank">${cdli}</a>`;
+        html += `<div class="detail-section"><div class="detail-title">CDLI Link</div><div class="detail-row">${link}</div></div>`;
+      }
+      
+      document.getElementById("detail-card").innerHTML = html || "<div class='empty-state'>No details available</div>";
+    }
+    
+    fetch(csvUrl)
+      .then(r => r.text())
+      .then(text => {
+        const parsed = Papa.parse(text, {
+          header: true,
+          skipEmptyLines: true,
+          transformHeader: h => h.trim()
+        });
+        
+        const columns = parsed.meta.fields.map(h => ({
+          title: h,
+          field: h,
+          width: 150
+        }));
+        
+        // NEW APPROACH: Use "100%" for height and let CSS handle it
+        const table = new Tabulator("#table", {
+          data: parsed.data,
+          layout: "fitDataFill",
+          height: "100%",  // Let CSS flexbox handle the height
+          columns: columns
+        });
+        
+        // Row click handler
+        table.on("rowClick", (e, row) => displayRecord(row.getData()));
+        
+        // Search functionality
+        document.getElementById("search-input").addEventListener("input", function() {
+          const query = this.value.trim().toLowerCase();
+          query ? table.setFilter(data => Object.values(data).some(v => String(v).toLowerCase().includes(query)))
+                : table.clearFilter();
+        });
+        
+        // Clear button
+        document.getElementById("clear-search").addEventListener("click", () => {
+          document.getElementById("search-input").value = "";
+          table.clearFilter();
+        });
+      })
+      .catch(err => {
+        document.getElementById("detail-card").innerHTML = `<div class='empty-state'>Error: ${err.message}</div>`;
+        console.error(err);
       });
-    });
-  }).catch(err => {
-    document.getElementById("detail-card").innerText = "Error loading CSV: " + err.message;
-    console.error(err);
-  });
-</script>
-
+  </script>
 </body>
 </html>
