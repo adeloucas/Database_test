@@ -220,32 +220,25 @@
     function displayRecord(record) {
       let html = "";
       
-      // Section 1: Record Details - TextID fields
+      // Section 1: Record Details
       const recordFields = renderField("Deloucas ID", record.TextID_D) + 
-                          renderField("ARCHIBAB", `<a href="${record.URL_A}" target="_blank">${record.TNum}</a>`) + 
-                          renderField("CDLI", `<a href="${record.URL_C}" target="_blank">${record.Pnum}</a>`) +
-                          renderField("Text Name (CDLI)", record.TextID_C) + 
-                          renderField("Text Name (ARCHIBAB1)", record.TextNum_A) + 
-                          renderField("Text Name (ARCHIBAB2)", record.TextID_A);
+                    renderField("Text Name (CDLI)", record.TextID_C) + 
+                    renderField("Text Name (ARCHIBAB1)", record.TextNum_A) + 
+                    renderField("Text Name (ARCHIBAB2)", record.TextID_A) +
+                    renderLink("ARCHIBAB", record.URL_A, record.TNum) + 
+                    renderLink("CDLI", record.URL_C, record.Pnum);
       if (recordFields) {
-        html += `<div class="detail-section"><div class="detail-title">Record Details</div>${recordFields}`;
-        // Add URLs as links
-        html += renderLink("ARCHIBAB Link", record.URL_A, "Link to ARCHIBAB");
-        html += renderLink("CDLI Link", record.URL_C, "Link to CDLI");
-        html += `</div>`;
+        html += `<div class="detail-section"><div class="detail-title">Record Details</div>${recordFields}</div>`;
       }
-      
       // Section 2: Date Information
-      const dateFields = renderField("Day", record.Day) + 
-                        renderField("Month", record.Month) + 
+      const dateFields = renderField("Date_D", record.Date_D) +
                         renderField("Ruler", record.Ruler) + 
-                        renderField("Year", record.Year) + 
-                        renderField("Date_D", record.Date_D);
+                        renderField("Year", record.Year) +
+                        renderField("Month", record.Month) +
+                        renderField("Day", record.Day) ;
       if (dateFields) {
         html += `<div class="detail-section"><div class="detail-title">Date</div>${dateFields}</div>`;
       }
-      
-      
       // Section 4: Archive, Genre, Dossier
       const classFields = renderField("Archive", record.Archive_D) + 
                          renderField("Genre", record.Genre_D) + 
@@ -299,6 +292,7 @@
   </script>
 </body>
 </html>
+
 
 
 
