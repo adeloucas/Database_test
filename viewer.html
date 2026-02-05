@@ -222,11 +222,11 @@
       
       // Section 1: Record Details - TextID fields
       const recordFields = renderField("Deloucas ID", record.TextID_D) + 
-                          renderField("ARCHIBAB", record.TNum) + 
-                          renderField("CDLI", record.Pnum) +
-                          renderField("CDLI ID", record.TextID_C) + 
-                          renderField("Archibab ID", record.TextNum_A) + 
-                          renderField("TextID_A", record.TextID_A);
+                          renderField("ARCHIBAB", `<a href="${record.URL_A}" target="_blank">${record.TNum}</a>`) + 
+                          renderField("CDLI", `<a href="${record.URL_C}" target="_blank">${record.Pnum}</a>`) +
+                          renderField("Text Name (CDLI)", record.TextID_C) + 
+                          renderField("Text Name (ARCHIBAB1)", record.TextNum_A) + 
+                          renderField("Text Name (ARCHIBAB2)", record.TextID_A);
       if (recordFields) {
         html += `<div class="detail-section"><div class="detail-title">Record Details</div>${recordFields}`;
         // Add URLs as links
@@ -299,5 +299,6 @@
   </script>
 </body>
 </html>
+
 
 
