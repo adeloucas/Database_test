@@ -64,11 +64,15 @@
 
     const rows = text.split("\n").map(r => r.split(","));
     const headers = rows[0];
-    const data = rows.slice(1).map(row => {
-      let obj = {};
-      headers.forEach((h, i) => obj[h] = row[i] || "");
-      return obj;
-    });
+    const data = rows
+      .slice(1)
+      .filter(row => row.some(cell => cell.trim() !== ""))  // remove empty rows
+      .map(row => {
+        let obj = {};
+        headers.forEach((h, i) => obj[h] = row[i] || "");
+        return obj;
+      });
+
 
     return { headers, data };
   }
@@ -118,4 +122,5 @@
 
 </body>
 </html>
+
 
