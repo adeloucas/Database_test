@@ -222,15 +222,15 @@
       // Section 1: Record Details - TextID fields
       const recordFields = renderField("Deloucas ID", record.TextID_D) + 
                           renderField("ARCHIBAB", record.TNum) + 
-                          renderField("CDLI", record.PNum);
-      const idFields = renderField("CDLI ID", record.TextID_C) + 
-                       renderField("Archibab ID", record.TextNum_A) + 
-                       renderField("TextID_A", record.TextID_A);
+                          renderField("CDLI", record.Pnum);
+                          renderField("CDLI ID", record.TextID_C) + 
+                          renderField("Archibab ID", record.TextNum_A) + 
+                          renderField("TextID_A", record.TextID_A);
       if (recordFields) {
         html += `<div class="detail-section"><div class="detail-title">Record Details</div>${recordFields}`;
         // Add URLs as links
-        html += renderLink("URL_A", record.URL_A, "Link to ARCHIBAB");
-        html += renderLink("URL_C", record.URL_C, "Link to CDLI");
+        html += renderLink("ARCHIBAB Link", record.URL_A, "Link to ARCHIBAB");
+        html += renderLink("CDLI Link", record.URL_C, "Link to CDLI");
         html += `</div>`;
       }
       
@@ -298,3 +298,4 @@
   </script>
 </body>
 </html>
+
