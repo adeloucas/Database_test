@@ -56,7 +56,7 @@
 
 <script>
   // Load CSV from GitHub (raw URL)
-  const csvUrl = "https://github.com/adeloucas/Database_test/blob/main/house%20f.csv";
+  const csvUrl = "https://raw.githubusercontent.com/adeloucas/Database_test/main/house%20f.csv";
 
   async function loadCSV() {
     const response = await fetch(csvUrl);
@@ -90,5 +90,31 @@
       virtualDom: true,
       rowClick: function (e, row) {
         const record = row.getData();
+        const detailDiv = document.getElementById("detail-card");
 
-        const detailDiv
+        let html = "";
+        for (const key in record) {
+          html += `
+            <div class="detail-row">
+              <div class="detail-label">${key}</div>
+              <div>${record[key]}</div>
+            </div>
+          `;
+        }
+        detailDiv.innerHTML = html;
+      }
+    });
+
+    document.getElementById("search-input").addEventListener("keyup", function () {
+      const query = this.value.toLowerCase();
+      table.setFilter((row) => {
+        return Object.values(row.getData()).some(v =>
+          String(v).toLowerCase().includes(query)
+        );
+      });
+    });
+  });
+</script>
+
+</body>
+</html>
