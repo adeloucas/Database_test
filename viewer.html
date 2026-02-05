@@ -56,7 +56,7 @@
 
 <script>
   // Load CSV from GitHub (raw URL)
-  const csvUrl = "https://raw.githubusercontent.com/adeloucas/Database_test/main/house%20f.csv";
+  const csvUrl = "https://github.com/adeloucas/Database_test/blob/main/house%20f.csv";
 
   async function loadCSV() {
     const response = await fetch(csvUrl);
@@ -90,4 +90,5 @@
       virtualDom: true,
       rowClick: function (e, row) {
         const record = row.getData();
+
         const detailDiv
