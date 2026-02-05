@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>House F Dataset Viewer</title>
+
+  <!-- Tabulator CSS -->
+  <link href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    #detail-card {
+      margin-top: 20px;
+      padding: 15px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: #fafafa;
+    }
+
+    .detail-row {
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .detail-label {
+      font-weight: bold;
+      color: #333;
+    }
+
+    #search-input {
+      width: 250px;
+      padding: 6px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>House F Dataset</h2>
+
+<input id="search-input" type="text" placeholder="Search…">
+
+<div id="table"></div>
+
+<h3>Record Details</h3>
+<div id="detail-card">Click a row to view details.</div>
+
+<!-- Tabulator JS -->
+<script src="https://unpkg.com/tabulator-tables@5.5.0/dist/js/tabulator.min.js"></script>
+
+<script>
+  // Load CSV from GitHub (raw URL)
+  const csvUrl = "https://raw.githubusercontent.com/adeloucas/Database_test/main/house%20f.csv";
+
+  async function loadCSV() {
+    const response = await fetch(csvUrl);
+    const text = await response.text();
+
+    const rows = text.split("\n").map(r => r.split(","));
+    const headers = rows[0];
+    const data = rows.slice(1).map(row => {
+      let obj = {};
+      headers.forEach((h, i) => obj[h] = row[i] || "");
+      return obj;
+    });
+
+    return { headers, data };
+  }
+
+  loadCSV().then(({ headers, data }) => {
+    const columns = headers.map(h => ({
+      title: h,
+      field: h,
+      headerFilter: false,
+      width: 150
+    }));
+
+    const table = new Tabulator("#table", {
+      data: data,
+      layout: "fitDataFill",
+      height: "500px",
+      columns: columns,
+      selectable: 1,
+      virtualDom: true,
+      rowClick: function (e, row) {
+        const record = row.getData();
+        const detailDiv
