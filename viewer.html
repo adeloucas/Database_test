@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>House F Dataset Viewer</title>
+  <title>Dataset Viewer</title>
   <link href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator.min.css" rel="stylesheet">
   
   <style>
@@ -55,7 +55,6 @@
     #clear-search:hover { background: #e0e0e0; }
     
     /* Table container: bottom-left, second row first column */
-    /* NEW APPROACH: Use flexbox instead of absolute positioning */
     #table-container {
       grid-column: 1;
       grid-row: 2;
@@ -109,15 +108,15 @@
     .detail-label {
       font-weight: 600;
       color: #555;
-      min-width: 80px;
+      min-width: 100px;
       display: inline-block;
     }
     
-    a.cdli-link {
+    a.external-link {
       color: #0b66c3;
       text-decoration: none;
     }
-    a.cdli-link:hover { text-decoration: underline; }
+    a.external-link:hover { text-decoration: underline; }
     
     .empty-state {
       color: #999;
@@ -165,7 +164,7 @@
       #clear-search { width: 100%; }
       
       .detail-label {
-        min-width: 60px;
+        min-width: 80px;
         font-size: 13px;
       }
     }
@@ -173,7 +172,7 @@
 </head>
 
 <body>
-  <h2>House F Dataset</h2>
+  <h2>Dataset</h2>
   
   <div class="container">
     <div id="search-container">
@@ -197,7 +196,7 @@
   <script src="https://unpkg.com/tabulator-tables@5.5.0/dist/js/tabulator.min.js"></script>
 
   <script>
-    const csvUrl = "https://raw.githubusercontent.com/adeloucas/Database_test/main/house%20f.csv";
+    const csvUrl = "https://raw.githubusercontent.com/adeloucas/Database_test/main/test_data.csv";
     
     function escapeHtml(str) {
       return String(str)
@@ -207,31 +206,51 @@
     }
     
     function renderField(label, value) {
-      if (!value || value === "-") return "";
+      if (!value || value === "-" || value === "0") return "";
       return `<div class="detail-row"><span class="detail-label">${label}:</span> ${escapeHtml(value)}</div>`;
+    }
+    
+    function renderLink(label, url, text) {
+      if (!url || url === "-") return "";
+      const displayText = text || url;
+      return `<div class="detail-row"><span class="detail-label">${label}:</span> <a class="external-link" href="${escapeHtml(url)}" target="_blank">${escapeHtml(displayText)}</a></div>`;
     }
     
     function displayRecord(record) {
       let html = "";
       
-      const dateFields = renderField("Month", record.Month) + 
-                        renderField("Day", record.Day) + 
-                        renderField("Year", record.Year);
-      if (dateFields) html += `<div class="detail-section"><div class="detail-title">Date</div>${dateFields}</div>`;
-      
-      if (record["Text ID"] && record["Text ID"] !== "-") {
-        html += `<div class="detail-section"><div class="detail-title">Text ID</div>${renderField("Text ID", record["Text ID"])}</div>`;
+      // Section 1: Record Details - TextID fields
+      const recordFields = renderField("Deloucas ID", record.TextID_D) + 
+                          renderField("ARCHIBAB", record.TNum) + 
+                          renderField("CDLI", record.PNum);
+      const idFields = renderField("CDLI ID", record.TextID_C) + 
+                       renderField("Archibab ID", record.TextNum_A) + 
+                       renderField("TextID_A", record.TextID_A);
+      if (recordFields) {
+        html += `<div class="detail-section"><div class="detail-title">Record Details</div>${recordFields}`;
+        // Add URLs as links
+        html += renderLink("URL_A", record.URL_A, "Link to ARCHIBAB");
+        html += renderLink("URL_C", record.URL_C, "Link to CDLI");
+        html += `</div>`;
       }
       
-      const classFields = renderField("Genre", record.Genre) + renderField("Dossier", record.Dossier);
-      if (classFields) html += `<div class="detail-section"><div class="detail-title">Classification</div>${classFields}</div>`;
+      // Section 2: Date Information
+      const dateFields = renderField("Day", record.Day) + 
+                        renderField("Month", record.Month) + 
+                        renderField("Ruler", record.Ruler) + 
+                        renderField("Year", record.Year) + 
+                        renderField("Date_D", record.Date_D);
+      if (dateFields) {
+        html += `<div class="detail-section"><div class="detail-title">Date</div>${dateFields}</div>`;
+      }
       
-      if (record.CDLI && record.CDLI !== "-") {
-        const cdli = escapeHtml(record.CDLI);
-        const link = /^https?:\/\//i.test(record.CDLI) 
-          ? `<a class="cdli-link" href="${cdli}" target="_blank">${cdli}</a>`
-          : `<a class="cdli-link" href="https://cdli.ucla.edu/search/search_results.php?SearchMode=Text&ObjectID=${encodeURIComponent(record.CDLI)}" target="_blank">${cdli}</a>`;
-        html += `<div class="detail-section"><div class="detail-title">CDLI Link</div><div class="detail-row">${link}</div></div>`;
+      
+      // Section 4: Archive, Genre, Dossier
+      const classFields = renderField("Archive", record.Archive_D) + 
+                         renderField("Genre", record.Genre_D) + 
+                         renderField("Dossier", record.Dossier_D);
+      if (classFields) {
+        html += `<div class="detail-section"><div class="detail-title">Text Info</div>${classFields}</div>`;
       }
       
       document.getElementById("detail-card").innerHTML = html || "<div class='empty-state'>No details available</div>";
@@ -252,25 +271,21 @@
           width: 150
         }));
         
-        // NEW APPROACH: Use "100%" for height and let CSS handle it
         const table = new Tabulator("#table", {
           data: parsed.data,
           layout: "fitDataFill",
-          height: "100%",  // Let CSS flexbox handle the height
+          height: "100%",
           columns: columns
         });
         
-        // Row click handler
         table.on("rowClick", (e, row) => displayRecord(row.getData()));
         
-        // Search functionality
         document.getElementById("search-input").addEventListener("input", function() {
           const query = this.value.trim().toLowerCase();
           query ? table.setFilter(data => Object.values(data).some(v => String(v).toLowerCase().includes(query)))
                 : table.clearFilter();
         });
         
-        // Clear button
         document.getElementById("clear-search").addEventListener("click", () => {
           document.getElementById("search-input").value = "";
           table.clearFilter();
