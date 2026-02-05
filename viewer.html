@@ -142,41 +142,40 @@
         const detailDiv = document.getElementById("detail-card");
 
         // Build grouped sections
-        // Group 1: Year | Month | Day
-        const year = record["Year"] || record["year"] || "";
-        const month = record["Month"] || record["month"] || "";
-        const day = record["Day"] || record["day"] || "";
+        // Group 1: Year | Month | Day (using correct capitalization)
+        const year = record["Year"] || "";
+        const month = record["Month"] || "";
+        const day = record["Day"] || "";
         let dateHtml = "";
         dateHtml += renderField("Year", year);
         dateHtml += renderField("Month", month);
         dateHtml += renderField("Day", day);
 
-        // Group 2: Text ID
-        const textId = record["Text ID"] || record["TextID"] || record["Text_Id"] || record["Text id"] || "";
+        // Group 2: Text ID (using correct capitalization)
+        const textId = record["Text ID"] || "";
         let textIdHtml = "";
         if (textId && String(textId).trim() !== "") {
-          // If CDLI id exists, make a link later; otherwise show plain text
           textIdHtml += renderField("Text ID", textId);
         }
 
-        // Group 3: Genre | Dossier
-        const genre = record["Genre"] || record["genre"] || "";
-        const dossier = record["Dossier"] || record["dossier"] || "";
+        // Group 3: Genre | Dossier (using correct capitalization)
+        const genre = record["Genre"] || "";
+        const dossier = record["Dossier"] || "";
         let genreHtml = "";
         genreHtml += renderField("Genre", genre);
         genreHtml += renderField("Dossier", dossier);
 
-        // Group 4: CDLI (if present)
-        const cdli = record["CDLI"] || record["Cdli"] || record["cdli"] || record["CDLI ID"] || "";
+        // Group 4: CDLI (using correct capitalization)
+        const cdli = record["CDLI"] || "";
         let cdliHtml = "";
-        if (cdli && String(cdli).trim() !== "") {
+        if (cdli && String(cdli).trim() !== "" && cdli !== "-") {
           const cdliEsc = escapeHtml(cdli);
-          // Example CDLI link pattern; adjust if your CDLI values are full URLs or IDs
+          // Example CDLI link pattern
           let cdliLink = "";
           if (/^https?:\/\//i.test(cdli)) {
             cdliLink = `<a class="cdli-link" href="${cdliEsc}" target="_blank" rel="noopener noreferrer">${cdliEsc}</a>`;
           } else {
-            // If cdli looks like an ID, link to CDLI search page (adjust if you prefer)
+            // If cdli looks like an ID, link to CDLI search page
             cdliLink = `<a class="cdli-link" href="https://cdli.ucla.edu/search/search_results.php?SearchMode=Text&ObjectID=${encodeURIComponent(cdli)}" target="_blank" rel="noopener noreferrer">${cdliEsc}</a>`;
           }
           cdliHtml += `<div class="detail-row"><span class="detail-label">CDLI</span><span class="detail-value">${cdliLink}</span></div>`;
@@ -186,7 +185,7 @@
         let finalHtml = "";
 
         if (dateHtml) {
-          finalHtml += `<div class="detail-section"><div class="detail-title">Year Month Day</div>${dateHtml}</div>`;
+          finalHtml += `<div class="detail-section"><div class="detail-title">Date Information</div>${dateHtml}</div>`;
         }
 
         if (textIdHtml) {
