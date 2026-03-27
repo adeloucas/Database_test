@@ -3,257 +3,301 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dataset Viewer</title>
+  <title>Deloucas Dissertation Database</title>
   <link href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator.min.css" rel="stylesheet">
-  
+
   <style>
-    /* GLOBAL RESET */
     * { box-sizing: border-box; }
-    
-    /* BODY */
+
     body {
       font-family: Arial, sans-serif;
       margin: 0;
-      padding: 20px;
+      padding: 16px;
       min-height: 100vh;
+      background: #f5f5f5;
     }
-    
-    h2 { margin: 0 0 20px 0; }
-    
-    /* DESKTOP LAYOUT: 2 columns - table left, details right */
-    .container {
+
+    h2 { margin: 0 0 14px 0; }
+
+    /* ─── MAIN GRID ─── */
+    .page-grid {
       display: grid;
-      grid-template-columns: 1fr 400px;
-      grid-template-rows: auto 1fr;
-      gap: 20px;
-      height: calc(100vh - 100px);
+      grid-template-columns: 420px 1fr;
+      grid-template-rows: auto auto auto auto auto;
+      gap: 14px;
+      align-items: start;
     }
-    
-    /* Search bar: top-left, first row first column */
-    #search-container {
+
+    /* ── Row 1: two mini boxes (ID left, Date right) ── */
+    .id-date-row {
       grid-column: 1;
       grid-row: 1;
-      display: flex;
+      display: grid;
+      grid-template-columns: 1fr 1.3fr;
       gap: 10px;
     }
-    
+
+    .mini-box {
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 12px 14px;
+    }
+
+    .mini-box .box-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #777;
+      margin-bottom: 6px;
+    }
+
+    .mini-box .big-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: #111;
+      line-height: 1.2;
+      margin-bottom: 3px;
+    }
+
+    .mini-box .date-subtitle {
+      font-size: 13px;
+      color: #555;
+      margin-top: 4px;
+    }
+
+    .mini-box .empty-state {
+      font-size: 13px;
+      color: #bbb;
+      font-style: italic;
+    }
+
+    /* ── Row 2: External Database Info (CDLI / ARCHIBAB) ── */
+    .detail-box {
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 14px 16px;
+      grid-column: 1;
+    }
+
+    #box-links { grid-row: 2; }
+
+    .detail-box .detail-title {
+      font-weight: 700;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+      color: #777;
+    }
+
+    .link-group { margin-bottom: 14px; }
+    .link-group:last-child { margin-bottom: 0; }
+
+    .link-group-label {
+      font-weight: 600;
+      font-size: 13px;
+      color: #333;
+      margin-bottom: 3px;
+    }
+
+    .link-group-sub {
+      font-size: 13px;
+      color: #555;
+      padding-left: 4px;
+    }
+
+    /* ── Row 3: Dossier / Archive / Genre ── */
+    #box-class { grid-row: 3; }
+
+    .detail-row { margin-bottom: 7px; }
+    .detail-row:last-child { margin-bottom: 0; }
+
+    .detail-label {
+      font-weight: 600;
+      color: #555;
+      min-width: 70px;
+      display: inline-block;
+      font-size: 13px;
+    }
+
+    .detail-value { font-size: 13px; }
+
+    /* ── Row 4: Search / Clear ── */
+    .bottom-controls {
+      grid-column: 1;
+      grid-row: 4;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
     #search-input {
       flex: 1;
-      padding: 10px;
+      padding: 9px 12px;
       border: 1px solid #ccc;
       border-radius: 4px;
+      font-size: 14px;
     }
-    
+
     #clear-search {
-      padding: 10px 20px;
+      padding: 9px 20px;
       cursor: pointer;
       background: #f0f0f0;
       border: 1px solid #ccc;
       border-radius: 4px;
       white-space: nowrap;
+      font-size: 14px;
     }
-    
     #clear-search:hover { background: #e0e0e0; }
-    
-    /* Table container: bottom-left, second row first column */
-    #table-container {
-      grid-column: 1;
-      grid-row: 2;
+
+    /* ── Row 5: main table (full width) ── */
+    .main-table-container {
+      grid-column: 1 / -1;
+      grid-row: 5;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      overflow: hidden;
+      height: 320px;
+    }
+
+    #main-table { width: 100%; height: 100%; }
+
+    /* ── Names panel: right column, rows 1–4 (full height of left side) ── */
+    .names-panel {
+      grid-column: 2;
+      grid-row: 1 / 5;
+      background: #fff;
       border: 1px solid #ccc;
       border-radius: 6px;
       display: flex;
       flex-direction: column;
-      min-height: 0;
       overflow: hidden;
     }
-    
-    /* Table fills the flex container */
-    #table {
-      flex: 1;
-      width: 100%;
-      height: 100%;
-    }
-    
-    /* Detail panel: right side, spans both rows, second column */
-    #detail-panel {
-      grid-column: 2;
-      grid-row: 1 / 3;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      background: #fafafa;
-      padding: 20px;
-      overflow-y: auto;
-    }
-    
-    #detail-panel h3 { margin: 0 0 15px 0; }
-    
-    .detail-section {
-      padding: 15px;
-      margin-bottom: 12px;
-      border-radius: 6px;
-      background: #fff;
-      border: 1px solid #e6e6e6;
-    }
-    
-    .detail-title {
+
+    .names-panel-header {
+      padding: 10px 14px;
       font-weight: 700;
-      margin-bottom: 10px;
-      font-size: 14px;
+      font-size: 13px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      border-bottom: 1px solid #e0e0e0;
+      background: #fafafa;
+      color: #333;
+      flex-shrink: 0;
     }
-    
-    .detail-row { margin-bottom: 8px; }
-    .detail-row:last-child { margin-bottom: 0; }
-    
-    .detail-label {
-      font-weight: 600;
-      color: #555;
-      min-width: 100px;
-      display: inline-block;
-    }
-    
-    a.external-link {
-      color: #0b66c3;
-      text-decoration: none;
-    }
+
+    #names-table { flex: 1; width: 100%; }
+
+    a.external-link { color: #0b66c3; text-decoration: none; }
     a.external-link:hover { text-decoration: underline; }
-    
-    .empty-state {
-      color: #999;
-      font-style: italic;
-      padding: 20px;
-      text-align: center;
+
+    .empty-state { color: #999; font-style: italic; font-size: 13px; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      .page-grid { grid-template-columns: 1fr; }
+      .names-panel { grid-column: 1; grid-row: auto; min-height: 240px; }
+      .main-table-container { grid-column: 1; }
     }
-    
-    /* TABLET: Stack vertically when screen < 1024px */
-    @media (max-width: 1024px) {
-      .container {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto auto 1fr;
-        height: auto;
-        min-height: calc(100vh - 100px);
-      }
-      
-      #search-container {
-        grid-column: 1;
-        grid-row: 1;
-      }
-      
-      #detail-panel {
-        grid-column: 1;
-        grid-row: 2;
-        max-height: 400px;
-      }
-      
-      #table-container {
-        grid-column: 1;
-        grid-row: 3;
-        min-height: 500px;
-      }
-    }
-    
-    /* MOBILE: Further adjustments < 768px */
-    @media (max-width: 768px) {
-      body { padding: 16px; }
-      #table-container {
-        padding: 12px;
-        border-radius: 10px;      
-      }
-      #search-container { 
-        flex-direction: column;
-        align-items: stretch;
-      }
-      
+
+    @media (max-width: 600px) {
+      body { padding: 10px; }
+      .bottom-controls { flex-direction: column; }
       #clear-search { width: 100%; }
-      
-      .detail-label {
-        min-width: 80px;
-        font-size: 13px;
-      }
+      .id-date-row { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 
 <body>
-  <h2>Dataset</h2>
-  
-  <div class="container">
-    <div id="search-container">
+  <h2>Deloucas Dissertation Database</h2>
+
+  <div class="page-grid">
+
+    <!-- Row 1: Deloucas ID + Date mini boxes -->
+    <div class="id-date-row">
+      <div class="mini-box">
+        <div class="box-label">Deloucas ID</div>
+        <div id="box-textid"><span class="empty-state">—</span></div>
+      </div>
+      <div class="mini-box">
+        <div class="box-label">Date (Ruler Year, Month/Day)</div>
+        <div id="box-date"><span class="empty-state">—</span></div>
+      </div>
+    </div>
+
+    <!-- Row 2: External database info -->
+    <div class="detail-box" id="box-links">
+      <div class="detail-title">External Database Information</div>
+      <div id="detail-links"><span class="empty-state">Click a row to view details</span></div>
+    </div>
+
+    <!-- Row 3: Dossier / Archive / Genre -->
+    <div class="detail-box" id="box-class">
+      <div class="detail-title">Dossier / Archive / Genre</div>
+      <div id="detail-class"><span class="empty-state">Click a row to view details</span></div>
+    </div>
+
+    <!-- Row 4: Search / Clear -->
+    <div class="bottom-controls">
       <input id="search-input" type="text" placeholder="Search across all fields…">
       <button id="clear-search">Clear</button>
     </div>
-    
-    <div id="table-container">
-      <div id="table"></div>
+
+    <!-- Right column rows 1–4: Names Found in Text -->
+    <div class="names-panel">
+      <div class="names-panel-header">Names Found in Text</div>
+      <div id="names-table"></div>
     </div>
-    
-    <div id="detail-panel">
-      <h3>Record Details</h3>
-      <div id="detail-card">
-        <div class="empty-state">Click a row to view details</div>
-      </div>
+
+    <!-- Row 5: Main texts table (full width) -->
+    <div class="main-table-container">
+      <div id="main-table"></div>
     </div>
+
   </div>
 
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="https://unpkg.com/tabulator-tables@5.5.0/dist/js/tabulator.min.js"></script>
 
   <script>
-    const csvUrl = "https://raw.githubusercontent.com/adeloucas/Database_test/main/diss texts.csv";
-    
+    const textsUrl = "https://raw.githubusercontent.com/adeloucas/Database_test/main/diss texts.csv";
+    const namesUrl = "https://raw.githubusercontent.com/adeloucas/Database_test/main/diss names.csv";
+
+    // ── Helpers ──────────────────────────────────────────────
+
     function escapeHtml(str) {
       return String(str)
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
     }
-    
+
+    // Returns trimmed value or null if empty / dash
+    function val(v) {
+      if (!v) return null;
+      const t = String(v).trim();
+      return (t === "" || t === "-") ? null : t;
+    }
+
     function renderField(label, value) {
-      if (!value || value === "-" || value === "0") return "";
-      return `<div class="detail-row"><span class="detail-label">${label}:</span> ${escapeHtml(value)}</div>`;
+      if (!val(value)) return "";
+      return `<div class="detail-row">
+        <span class="detail-label">${label}:</span>
+        <span class="detail-value">${escapeHtml(value)}</span>
+      </div>`;
     }
-    
-    function renderLink(label, url, text) {
-      if (!url || url === "-") return "";
-      const displayText = text || url;
-      return `<div class="detail-row"><span class="detail-label">${label}:</span> <a class="external-link" href="${escapeHtml(url)}" target="_blank">${escapeHtml(displayText)}</a></div>`;
-    }
-    
-    function displayRecord(record) {
-      let html = "";
-      
-      // Section 1: Record Details
-      const recordFields = renderField("Deloucas ID", record.TextID_D) + 
-                    renderField("Text Name (CDLI)", record.TextID_C) + 
-                    renderField("Text Name (ARCHIBAB1)", record.TextNum_A) + 
-                    renderField("Text Name (ARCHIBAB2)", record.TextID_A) +
-                    renderLink("ARCHIBAB", record.URL_A, record.TNum) + 
-                    renderLink("CDLI", record.URL_C, record.Pnum);
-      if (recordFields) {
-        html += `<div class="detail-section"><div class="detail-title">Record Details</div>${recordFields}</div>`;
-      }
-      // Section 2: Date Information
-      const dateFields = renderField("Date_D", record.Date_D) +
-                        renderField("Ruler", record.Ruler) + 
-                        renderField("Year", record.Year) +
-                        renderField("Month", record.Month) +
-                        renderField("Day", record.Day) ;
-      if (dateFields) {
-        html += `<div class="detail-section"><div class="detail-title">Date</div>${dateFields}</div>`;
-      }
-      // Section 4: Archive, Genre, Dossier
-      const classFields = renderField("Archive", record.Archive_D) + 
-                         renderField("Genre", record.Genre_D) + 
-                         renderField("Dossier", record.Dossier_D);
-      if (classFields) {
-        html += `<div class="detail-section"><div class="detail-title">Text Info</div>${classFields}</div>`;
-      }
-      
-      document.getElementById("detail-card").innerHTML = html || "<div class='empty-state'>No details available</div>";
-    }
-    
-    fetch(csvUrl)
+
+    // ── Names table (right panel) ─────────────────────────────
+
+    let allNamesData = [];
+    let namesTable = null;
+
+    fetch(namesUrl)
       .then(r => r.text())
       .then(text => {
         const parsed = Papa.parse(text, {
@@ -261,41 +305,138 @@
           skipEmptyLines: true,
           transformHeader: h => h.trim()
         });
-        
+        allNamesData = parsed.data;
+
+        namesTable = new Tabulator("#names-table", {
+          data: [],
+          layout: "fitColumns",
+          height: "100%",
+          placeholder: "Select a text to see names",
+          columns: [
+            { title: "P_PID",   field: "P_PID",   width: 70 },
+            { title: "P_PN",    field: "P_PN",    minWidth: 120 },
+            { title: "P_Notes", field: "P_Notes", minWidth: 150 },
+            { title: "P_Role",  field: "P_Role",  minWidth: 130 },
+            { title: "P_Seal",  field: "P_Seal",  minWidth: 80 }
+          ]
+        });
+      })
+      .catch(err => console.error("Names CSV error:", err));
+
+    function loadNamesForText(textID) {
+      if (!namesTable) return;
+      const rows = allNamesData.filter(r => String(r.T_TID).trim() === String(textID).trim());
+      namesTable.setData(rows);
+    }
+
+    // ── Detail panel ─────────────────────────────────────────
+
+    function displayRecord(record) {
+
+      // Box 1: Deloucas ID — large bold
+      document.getElementById("box-textid").innerHTML = val(record.TextID_D)
+        ? `<div class="big-value">${escapeHtml(record.TextID_D)}</div>`
+        : "<span class='empty-state'>—</span>";
+
+      // Box 2: Date_D large + (Ruler Year, Month/Day) subtitle
+      const dateD = val(record.Date_D);
+      const ruler = val(record.Ruler)  || "-";
+      const year  = val(record.Year)   || "-";
+      const month = val(record.Month)  || "-";
+      const day   = val(record.Day)    || "-";
+      const sub   = `(${escapeHtml(ruler)} ${escapeHtml(year)}, ${escapeHtml(month)}/${escapeHtml(day)})`;
+      document.getElementById("box-date").innerHTML = dateD
+        ? `<div class="big-value">${escapeHtml(dateD)}</div><div class="date-subtitle">${sub}</div>`
+        : `<div class="date-subtitle">${sub}</div>`;
+
+      // Box 3: CDLI + ARCHIBAB
+      let linksHtml = "";
+      // --- CDLI ---
+      const cdliId  = val(record.TextID_C);
+      const cdliP   = val(record.Pnum);
+      const cdliUrl = val(record["CDLI Link"]);
+      if (cdliId || cdliUrl || cdliP) {
+        linksHtml += `<div class="link-group">`;
+        if (cdliId) {
+          const p = cdliP ? ` (${escapeHtml(cdliP)})` : "";
+          linksHtml += `<div class="link-group-label">CDLI: ${escapeHtml(cdliId)}${p}</div>`;
+        }
+        if (cdliUrl) {
+          linksHtml += `<div class="link-group-sub">&#8627;&nbsp;<a class="external-link" href="${escapeHtml(cdliUrl)}" target="_blank">CDLI Link</a></div>`;
+        }
+        linksHtml += `</div>`;
+      }
+      // --- ARCHIBAB ---
+      const archibabId  = val(record.TextNum_A);
+      const archibabT   = val(record.TNum);
+      const archibabUrl = val(record["ARCHIBAB Link"]);
+      if (archibabId || archibabUrl || archibabT) {
+        linksHtml += `<div class="link-group">`;
+        if (archibabId) {
+          const t = archibabT ? ` (${escapeHtml(archibabT)})` : "";
+          linksHtml += `<div class="link-group-label">ARCHIBAB: ${escapeHtml(archibabId)}${t}</div>`;
+        }
+        if (archibabUrl) {
+          linksHtml += `<div class="link-group-sub">&#8627;&nbsp;<a class="external-link" href="${escapeHtml(archibabUrl)}" target="_blank">ARCHIBAB Link</a></div>`;
+        }
+        linksHtml += `</div>`;
+      }
+      document.getElementById("detail-links").innerHTML =
+        linksHtml || "<span class='empty-state'>No external database records</span>";
+
+      // Box 4: Dossier / Archive / Genre
+      const classHtml =
+        renderField("Dossier", record.Dossier_D) +
+        renderField("Archive", record.Archive_D) +
+        renderField("Genre",   record.Genre_D);
+      document.getElementById("detail-class").innerHTML =
+        classHtml || "<span class='empty-state'>No details available</span>";
+
+      // Load matching names into right panel
+      loadNamesForText(record.TextID_D);
+    }
+
+    // ── Main texts table (bottom) ─────────────────────────────
+
+    fetch(textsUrl)
+      .then(r => r.text())
+      .then(text => {
+        const parsed = Papa.parse(text, {
+          header: true,
+          skipEmptyLines: true,
+          transformHeader: h => h.trim()
+        });
+
         const columns = parsed.meta.fields.map(h => ({
           title: h,
           field: h,
           width: 150
         }));
-        
-        const table = new Tabulator("#table", {
+
+        const mainTable = new Tabulator("#main-table", {
           data: parsed.data,
           layout: "fitDataFill",
           height: "100%",
           columns: columns
         });
-        
-        table.on("rowClick", (e, row) => displayRecord(row.getData()));
-        
-        document.getElementById("search-input").addEventListener("input", function() {
-          const query = this.value.trim().toLowerCase();
-          query ? table.setFilter(data => Object.values(data).some(v => String(v).toLowerCase().includes(query)))
-                : table.clearFilter();
+
+        mainTable.on("rowClick", (e, row) => displayRecord(row.getData()));
+
+        document.getElementById("search-input").addEventListener("input", function () {
+          const q = this.value.trim().toLowerCase();
+          q
+            ? mainTable.setFilter(data =>
+                Object.values(data).some(v => String(v).toLowerCase().includes(q))
+              )
+            : mainTable.clearFilter();
         });
-        
+
         document.getElementById("clear-search").addEventListener("click", () => {
           document.getElementById("search-input").value = "";
-          table.clearFilter();
+          mainTable.clearFilter();
         });
       })
-      .catch(err => {
-        document.getElementById("detail-card").innerHTML = `<div class='empty-state'>Error: ${err.message}</div>`;
-        console.error(err);
-      });
+      .catch(err => console.error("Texts CSV error:", err));
   </script>
 </body>
 </html>
-
-
-
-
