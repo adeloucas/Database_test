@@ -51,15 +51,16 @@
     .page-grid {
       display: grid;
       grid-template-columns: 420px 1fr;
-      grid-template-rows: repeat(5, auto);
+      grid-template-rows: repeat(4, auto);
       gap: 14px;
       align-items: start;
       min-width: 0;
+      margin-top: 14px;
     }
 
     /* All direct grid children must not blow past their cell width */
-    .id-date-row, .detail-box, .bottom-controls,
-    .names-panel, .main-table-container { min-width: 0; }
+    .id-date-row, .detail-box,
+    .names-panel { min-width: 0; }
 
     /* Tabulator must scroll horizontally inside its container, not push the page */
     .tabulator { max-width: 100%; }
@@ -175,13 +176,13 @@
       color: #111 !important;
     }
 
-    /* ─── ROW 4: SEARCH + CLEAR ─── */
+    /* ─── TEXT SEARCH BAR (outside grid, above texts table) ─── */
     .bottom-controls {
-      grid-column: 1;
-      grid-row: 4;
       display: flex;
       gap: 10px;
       align-items: center;
+      margin-bottom: 8px;
+      min-width: 0;
     }
 
     #search-input {
@@ -203,10 +204,8 @@
     }
     #clear-search:hover { background: #e0e0e0; }
 
-    /* ─── ROW 5: MAIN TEXTS TABLE ─── */
+    /* ─── MAIN TEXTS TABLE (outside grid, above detail/names grid) ─── */
     .main-table-container {
-      grid-column: 1 / -1;
-      grid-row: 5;
       background: #fff;
       border: 1px solid #ccc;
       border-radius: 6px;
@@ -214,6 +213,9 @@
       height: 320px;
       display: flex;
       flex-direction: column;
+      min-width: 0;
+      max-width: 100%;
+      margin-bottom: 14px;
     }
 
     .main-table-header {
@@ -233,10 +235,10 @@
 
     #main-table { width: 100%; flex: 1; }
 
-    /* ─── RIGHT COLUMN: NAMES PANEL (rows 1–4) ─── */
+    /* ─── RIGHT COLUMN: NAMES PANEL (rows 1–3) ─── */
     .names-panel {
       grid-column: 2;
-      grid-row: 1 / 5;
+      grid-row: 1 / 4;
       background: #fff;
       border: 1px solid #ccc;
       border-radius: 6px;
@@ -352,34 +354,26 @@
 
     /* ─── RESPONSIVE ─── */
     @media (max-width: 900px) {
-      /* Single-column stacked layout */
+      /* Single-column stacked layout for the detail+names grid */
       .page-grid {
         grid-template-columns: 1fr;
         grid-template-rows: auto;
+        margin-top: 0;
       }
-      /* All left-column boxes stack in natural order */
-      .id-date-row      { grid-column: 1; grid-row: auto; }
-      #box-links        { grid-column: 1; grid-row: auto; }
-      #box-class        { grid-column: 1; grid-row: auto; }
-      /* Names panel becomes full-width, sits after detail boxes */
-      .names-panel      { grid-column: 1; grid-row: auto; align-self: auto; min-height: 200px; }
-      /* Search bar sits just above the texts table */
-      .bottom-controls  { grid-column: 1; grid-row: auto; order: 1; }
-      /* Texts table full width, comes last */
-      .main-table-container { grid-column: 1; grid-row: auto; }
+      .id-date-row { grid-column: 1; grid-row: auto; }
+      #box-links   { grid-column: 1; grid-row: auto; }
+      #box-class   { grid-column: 1; grid-row: auto; }
+      .names-panel { grid-column: 1; grid-row: auto; align-self: auto; min-height: 200px; }
     }
 
     @media (max-width: 600px) {
       body { padding: 8px; }
-      /* Title row wraps gracefully */
       .page-title-row { flex-wrap: wrap; gap: 8px; }
-      /* ID+Date boxes side by side */
       .id-date-row { grid-template-columns: 1fr 1fr; }
       /* Search + Clear always on one line */
       .bottom-controls { flex-direction: row; flex-wrap: nowrap; }
-      #search-input     { flex: 1; min-width: 0; }
-      #clear-search     { flex-shrink: 0; width: auto; }
-      /* Slightly shorter tables on small phones */
+      #search-input    { flex: 1; min-width: 0; }
+      #clear-search    { flex-shrink: 0; width: auto; }
       .main-table-container { height: 260px; }
     }
   </style>
@@ -389,6 +383,20 @@
   <div class="page-title-row">
     <h2>Deloucas Dissertation Database</h2>
     <button id="clear-all-btn">&#x2715; Clear All Name and Text Search</button>
+  </div>
+
+  <!-- Text search + clear, sits just below the title -->
+  <div class="bottom-controls">
+    <input id="search-input" type="text" placeholder="Search across all fields…">
+    <button id="clear-search">Clear</button>
+  </div>
+
+  <!-- Main texts table, full width, just below the search bar -->
+  <div class="main-table-container">
+    <div class="main-table-header">
+      <span id="main-table-label">All Texts</span>
+    </div>
+    <div id="main-table"></div>
   </div>
 
   <div class="page-grid">
@@ -417,13 +425,7 @@
       <div id="detail-class"><span class="empty-state">Click a row to view details</span></div>
     </div>
 
-    <!-- Row 4: Text search + clear -->
-    <div class="bottom-controls">
-      <input id="search-input" type="text" placeholder="Search across all fields…">
-      <button id="clear-search">Clear</button>
-    </div>
-
-    <!-- Right column rows 1–4: Names panel -->
+    <!-- Right column rows 1–3: Names panel -->
     <div class="names-panel">
       <div class="names-panel-header">
         <span class="header-title">Names</span>
@@ -441,14 +443,6 @@
       <div class="names-table-body">
         <div id="names-table"></div>
       </div>
-    </div>
-
-    <!-- Row 5: Main texts table (full width) -->
-    <div class="main-table-container">
-      <div class="main-table-header">
-        <span id="main-table-label">All Texts</span>
-      </div>
-      <div id="main-table"></div>
     </div>
 
   </div>
@@ -595,8 +589,7 @@
       const leftRows = [
         document.querySelector(".id-date-row"),
         document.getElementById("box-links"),
-        document.getElementById("box-class"),
-        document.querySelector(".bottom-controls")
+        document.getElementById("box-class")
       ];
 
       const maxH = leftRows.reduce((sum, el, i) => {
