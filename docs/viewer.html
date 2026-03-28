@@ -56,9 +56,9 @@
     .text-toolbar {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 8px;
       margin-bottom: 8px;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
     }
 
     /* ─── CITY TOGGLE ─── */
@@ -463,6 +463,24 @@
       #search-input    { flex: 1; min-width: 0; }
       #clear-search    { flex-shrink: 0; width: auto; }
       .main-table-container { height: 260px; }
+
+      /* ── Toolbar: keep all three controls on one line ── */
+      .text-toolbar { gap: 6px; }
+
+      #clear-all-btn {
+        padding: 0 8px;
+        font-size: 11px;
+        gap: 4px;
+        flex-shrink: 0;
+      }
+
+      .city-btn  { padding: 0 7px; font-size: 11px; }
+
+      #user-guide-tips-btn {
+        padding: 5px 8px;
+        font-size: 11px;
+        flex-shrink: 0;
+      }
     }
 
     /* ─── COACH MARKS ─── */
