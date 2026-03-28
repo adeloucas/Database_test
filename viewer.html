@@ -10,6 +10,11 @@
     /* ─── RESET & BASE ─── */
     * { box-sizing: border-box; }
 
+    html, body {
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+
     body {
       font-family: Arial, sans-serif;
       margin: 0;
@@ -29,7 +34,11 @@
     }
 
     #clear-all-btn {
-      padding: 6px 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      height: 28px;
+      padding: 0 14px;
       cursor: pointer;
       background: rgba(255,255,255,0.15);
       border: 1px solid rgba(255,255,255,0.45);
@@ -40,16 +49,88 @@
       white-space: nowrap;
       letter-spacing: 0.3px;
     }
+    #clear-all-btn span { line-height: 1; }
     #clear-all-btn:hover { background: rgba(255,255,255,0.28); }
+
+    /* ─── TOOLBAR (above search bar) ─── */
+    .text-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* ─── CITY TOGGLE ─── */
+    .city-toggle {
+      display: inline-flex;
+      align-items: center;
+      height: 28px;
+      background: #777;
+      border-radius: 20px;
+      padding: 0 6px;
+    }
+    .city-btn {
+      display: inline-flex;
+      align-items: center;
+      height: 22px;
+      padding: 0 10px;
+      border: none;
+      border-radius: 11px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      background: transparent;
+      color: rgba(255,255,255,0.8);
+      transition: background 0.15s, color 0.15s;
+      white-space: nowrap;
+      line-height: 1;
+    }
+    .city-btn:hover { color: #fff; }
+    .city-btn.city-btn-active {
+      background: #c9a84c;
+      color: #fff;
+    }
+    .city-sep {
+      font-size: 12px;
+      color: rgba(255,255,255,0.45);
+      padding: 0 1px;
+      user-select: none;
+      line-height: 1;
+    }
+
+    #user-guide-tips-btn {
+      padding: 6px 14px;
+      cursor: pointer;
+      background: rgba(255,255,255,0.9);
+      border: 1px solid rgba(255,255,255,0.9);
+      border-radius: 4px;
+      color: #333;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      letter-spacing: 0.3px;
+    }
+    #user-guide-tips-btn:hover { background: #fff; }
 
     /* ─── MAIN GRID ─── */
     .page-grid {
       display: grid;
       grid-template-columns: 420px 1fr;
-      grid-template-rows: repeat(5, auto);
+      grid-template-rows: repeat(4, auto);
       gap: 14px;
       align-items: start;
+      min-width: 0;
+      margin-top: 14px;
     }
+
+    /* All direct grid children must not blow past their cell width */
+    .id-date-row, .detail-box,
+    .names-panel { min-width: 0; }
+
+    /* Tabulator must scroll horizontally inside its container, not push the page */
+    .tabulator { max-width: 100%; }
+    .tabulator .tabulator-tableholder { overflow-x: auto !important; }
 
     /* ─── ROW 1: ID + DATE MINI BOXES ─── */
     .id-date-row {
@@ -133,14 +214,18 @@
       padding-left: 4px;
     }
 
-    .detail-row { margin-bottom: 7px; }
+    .detail-row {
+      margin-bottom: 7px;
+      display: flex;
+      align-items: baseline;
+    }
     .detail-row:last-child { margin-bottom: 0; }
 
     .detail-label {
       font-weight: 600;
       color: #555;
       min-width: 70px;
-      display: inline-block;
+      flex-shrink: 0;
       font-size: 13px;
     }
 
@@ -156,18 +241,18 @@
 
     /* ─── ROW HIGHLIGHT (shared across both tables) ─── */
     .tabulator-row.row-selected .tabulator-cell {
-      background: #dbeafe !important;
+      background: #fdf3dc !important;
       font-weight: 700 !important;
       color: #111 !important;
     }
 
-    /* ─── ROW 4: SEARCH + CLEAR ─── */
+    /* ─── TEXT SEARCH BAR (outside grid, above texts table) ─── */
     .bottom-controls {
-      grid-column: 1;
-      grid-row: 4;
       display: flex;
       gap: 10px;
       align-items: center;
+      margin-bottom: 8px;
+      min-width: 0;
     }
 
     #search-input {
@@ -189,40 +274,59 @@
     }
     #clear-search:hover { background: #e0e0e0; }
 
-    /* ─── ROW 5: MAIN TEXTS TABLE ─── */
+    /* ─── MAIN TEXTS TABLE (outside grid, above detail/names grid) ─── */
     .main-table-container {
-      grid-column: 1 / -1;
-      grid-row: 5;
       background: #fff;
       border: 1px solid #ccc;
       border-radius: 6px;
       overflow: hidden;
-      height: 320px;
+      height: 245px;
       display: flex;
       flex-direction: column;
+      min-width: 0;
+      max-width: 100%;
+      margin-bottom: 14px;
     }
 
     .main-table-header {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 6px 12px;
+      justify-content: center;
+      gap: 10px;
+      padding: 8px 16px;
       background: #f0f0f0;
       border-bottom: 2px solid #ccc;
       flex-shrink: 0;
-      font-size: 13px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
       color: #222;
+    }
+
+    #main-table-label {
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1.2;
+      color: #222;
+    }
+
+    /* Gold highlight for dynamic parts of the label */
+    #main-table-label .label-dynamic {
+      color: #c9a84c;
+    }
+
+    #main-table-count {
+      font-size: 22px;
+      font-weight: 400;
+      color: #666;
+      letter-spacing: 0;
+      line-height: 1.2;
+      white-space: nowrap;
     }
 
     #main-table { width: 100%; flex: 1; }
 
-    /* ─── RIGHT COLUMN: NAMES PANEL (rows 1–4) ─── */
+    /* ─── RIGHT COLUMN: NAMES PANEL (rows 1–3) ─── */
     .names-panel {
       grid-column: 2;
-      grid-row: 1 / 5;
+      grid-row: 1 / 4;
       background: #fff;
       border: 1px solid #ccc;
       border-radius: 6px;
@@ -338,16 +442,27 @@
 
     /* ─── RESPONSIVE ─── */
     @media (max-width: 900px) {
-      .page-grid { grid-template-columns: 1fr; }
-      .names-panel { grid-column: 1; grid-row: auto; min-height: 240px; }
-      .main-table-container { grid-column: 1; }
+      /* Single-column stacked layout for the detail+names grid */
+      .page-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+        margin-top: 0;
+      }
+      .id-date-row { grid-column: 1; grid-row: auto; }
+      #box-links   { grid-column: 1; grid-row: auto; }
+      #box-class   { grid-column: 1; grid-row: auto; }
+      .names-panel { grid-column: 1; grid-row: auto; align-self: auto; min-height: 200px; }
     }
 
     @media (max-width: 600px) {
-      body { padding: 10px; }
-      .bottom-controls { flex-direction: column; }
-      #clear-search { width: 100%; }
-      .id-date-row { grid-template-columns: 1fr; }
+      body { padding: 8px; }
+      .page-title-row { flex-wrap: wrap; gap: 8px; }
+      .id-date-row { grid-template-columns: 1fr 1fr; }
+      /* Search + Clear always on one line */
+      .bottom-controls { flex-direction: row; flex-wrap: nowrap; }
+      #search-input    { flex: 1; min-width: 0; }
+      #clear-search    { flex-shrink: 0; width: auto; }
+      .main-table-container { height: 260px; }
     }
   </style>
 </head>
@@ -355,7 +470,35 @@
 <body>
   <div class="page-title-row">
     <h2>Deloucas Dissertation Database</h2>
-    <button id="clear-all-btn">&#x2715; Clear All Name and Text Search</button>
+  </div>
+
+  <!-- Toolbar: Clear all / City toggle / User Guide -->
+  <div class="text-toolbar">
+    <button id="clear-all-btn"><span>&#x2715;</span><span>Clear all searches</span></button>
+
+    <div class="city-toggle" id="city-toggle">
+      <button class="city-btn" data-city="nippur">Nippur</button>
+      <span class="city-sep">|</span>
+      <button class="city-btn city-btn-active" data-city="all">All</button>
+      <span class="city-sep">|</span>
+      <button class="city-btn" data-city="ur">Ur</button>
+    </div>
+
+    <button id="user-guide-tips-btn">&#9432; User Guide &amp; Search Tips</button>
+  </div>
+
+  <!-- Text search + clear, sits just below the toolbar -->
+  <div class="bottom-controls">
+    <input id="search-input" type="text" placeholder="Search across all fields or use prefix to narrow search (see User Guide &amp; Search Tips)">
+    <button id="clear-search">Clear</button>
+  </div>
+
+  <!-- Main texts table, full width, just below the search bar -->
+  <div class="main-table-container">
+    <div class="main-table-header">
+      <span id="main-table-label">All Texts</span><span id="main-table-count"></span>
+    </div>
+    <div id="main-table"></div>
   </div>
 
   <div class="page-grid">
@@ -378,19 +521,13 @@
       <div id="detail-links"><span class="empty-state">Click a row to view details</span></div>
     </div>
 
-    <!-- Row 3: Dossier / Archive / Genre -->
+    <!-- Row 3: Genre / Dossier / Archive -->
     <div class="detail-box" id="box-class">
-      <div class="detail-title">Dossier / Archive / Genre</div>
+      <div class="detail-title">Genre / Dossier / Archive</div>
       <div id="detail-class"><span class="empty-state">Click a row to view details</span></div>
     </div>
 
-    <!-- Row 4: Text search + clear -->
-    <div class="bottom-controls">
-      <input id="search-input" type="text" placeholder="Search across all fields…">
-      <button id="clear-search">Clear</button>
-    </div>
-
-    <!-- Right column rows 1–4: Names panel -->
+    <!-- Right column rows 1–3: Names panel -->
     <div class="names-panel">
       <div class="names-panel-header">
         <span class="header-title">Names</span>
@@ -408,14 +545,6 @@
       <div class="names-table-body">
         <div id="names-table"></div>
       </div>
-    </div>
-
-    <!-- Row 5: Main texts table (full width) -->
-    <div class="main-table-container">
-      <div class="main-table-header">
-        <span id="main-table-label">All Texts</span>
-      </div>
-      <div id="main-table"></div>
     </div>
 
   </div>
@@ -444,6 +573,19 @@
     let lastTextRows     = null; // name rows for the currently selected text
     let lastSelectedNames = null; // highlighted row in the names table
     let lastSelectedTexts = null; // highlighted row in the texts table
+    let cityFilter   = "all";
+    let contextLabel = { html: "All Texts" };
+    let activePerson = null; // { pid, pn } — set when name-row filter is active
+
+    const G = s => `<span class="label-dynamic">${escapeHtml(s)}</span>`;
+
+    // Build full label HTML: context + city suffix (city suffix also highlighted)
+    function compositeLabel() {
+      const citySuffix = cityFilter === "nippur" ? ` from ${G("Nippur")}`
+                       : cityFilter === "ur"     ? ` from ${G("Ur")}`
+                       : "";
+      return contextLabel.html + citySuffix;
+    }
 
     // ── Helpers ───────────────────────────────────────────────
 
@@ -465,6 +607,9 @@
       const t = String(v ?? "").trim();
       return (t === "" || t === "-") ? null : t;
     }
+
+    /** Trim a cell value to a plain string (no null coercion like val()). */
+    function str(v) { return String(v ?? "").trim(); }
 
     /** Render a read-only label/value detail row, or "" if the value is empty. */
     function renderField(label, value) {
@@ -519,18 +664,17 @@
 
     /** Remove the highlight from one or both tables. */
     function clearSelectedRow(source) {
-      const clearOne = (rowRef, setter) => {
-        if (rowRef && rowRef.getElement()) {
-          rowRef.getElement().classList.remove("row-selected");
-        }
-        setter(null);
-      };
-
       if (source === "names" || source === "both") {
-        clearOne(lastSelectedNames, v => { lastSelectedNames = v; });
+        if (lastSelectedNames && lastSelectedNames.getElement()) {
+          lastSelectedNames.getElement().classList.remove("row-selected");
+        }
+        lastSelectedNames = null;
       }
       if (source === "texts" || source === "both") {
-        clearOne(lastSelectedTexts, v => { lastSelectedTexts = v; });
+        if (lastSelectedTexts && lastSelectedTexts.getElement()) {
+          lastSelectedTexts.getElement().classList.remove("row-selected");
+        }
+        lastSelectedTexts = null;
       }
     }
 
@@ -553,17 +697,17 @@
     // ── Names panel: dynamic height ───────────────────────────
     // NOTE: ROW_HEIGHT and GRID_GAP must match the Tabulator row height
     // and the .page-grid gap value in CSS respectively.
-    const ROW_HEIGHT   = 35;
-    const GRID_GAP     = 14;
-    const HEADER_H_EST = 40;
-    const MIN_ROWS     = 3;
+    const ROW_HEIGHT    = 35;
+    const GRID_GAP      = 14;
+    const HEADER_H_EST  = 40;
+    const MIN_ROWS      = 3;
+    const COL_HEADER_H  = 35; // Tabulator's internal column header bar height
 
     function clampNamesPanelHeight() {
       const leftRows = [
         document.querySelector(".id-date-row"),
         document.getElementById("box-links"),
-        document.getElementById("box-class"),
-        document.querySelector(".bottom-controls")
+        document.getElementById("box-class")
       ];
 
       const maxH = leftRows.reduce((sum, el, i) => {
@@ -579,10 +723,9 @@
       const headerH  = headerEl ? headerEl.getBoundingClientRect().height : HEADER_H_EST;
 
       const rowCount   = namesTable ? namesTable.getData().length : 0;
-      const colHeaderH = 35; // Tabulator's internal column header bar height
 
-      const minBodyH   = colHeaderH + MIN_ROWS * ROW_HEIGHT;
-      const idealBodyH = rowCount > 0 ? colHeaderH + rowCount * ROW_HEIGHT : minBodyH;
+      const minBodyH   = COL_HEADER_H + MIN_ROWS * ROW_HEIGHT;
+      const idealBodyH = rowCount > 0 ? COL_HEADER_H + rowCount * ROW_HEIGHT : minBodyH;
       const maxBodyH   = Math.max(minBodyH, maxH - headerH);
       const bodyH      = Math.min(Math.max(minBodyH, idealBodyH), maxBodyH);
 
@@ -595,10 +738,29 @@
 
     // ── Text table helpers ────────────────────────────────────
 
+    function updateTableHeader() {
+      const count = mainTableRef ? mainTableRef.getDataCount("active") : 0;
+      document.getElementById("main-table-label").innerHTML = compositeLabel();
+      document.getElementById("main-table-count").textContent = `| (${count} texts)`;
+    }
+
+    // Set context label: setContextLabel("static prefix ", "dynamic value")
+    // or setContextLabel("plain string") for fully static labels
+    function setContextLabel(staticPart, dynamicPart) {
+      if (dynamicPart !== undefined) {
+        contextLabel = { html: escapeHtml(staticPart) + G(dynamicPart) };
+      } else {
+        contextLabel = { html: escapeHtml(staticPart) };
+      }
+      updateTableHeader();
+    }
+
     function resetTextFilter() {
       if (!mainTableRef) return;
       mainTableRef.clearFilter();
-      document.getElementById("main-table-label").textContent = "All Texts";
+      contextLabel = { html: "All Texts" };
+      activePerson = null;
+      updateTableHeader();
     }
 
     // ── Detail panel ─────────────────────────────────────────
@@ -646,9 +808,9 @@
 
       // Build classification block and wire click handlers
       const classHtml =
+        renderClickableField("Genre",   record.Genre_D,   "Genre_D")   +
         renderClickableField("Dossier", record.Dossier_D, "Dossier_D") +
-        renderClickableField("Archive", record.Archive_D, "Archive_D") +
-        renderClickableField("Genre",   record.Genre_D,   "Genre_D");
+        renderClickableField("Archive", record.Archive_D, "Archive_D");
       const classBox = document.getElementById("detail-class");
       classBox.innerHTML = classHtml || "<span class='empty-state'>No details available</span>";
 
@@ -656,10 +818,12 @@
         el.addEventListener("click", () => {
           const { field, value } = el.dataset;
           if (!mainTableRef || !field || !value) return;
-          resetTextFilter();
+          mainTableRef.clearFilter();
           mainTableRef.setFilter(field, "=", value);
-          document.getElementById("main-table-label").textContent =
-            `Texts: ${el.previousElementSibling.textContent.replace(":", "")} = ${value}`;
+          if      (field === "Genre_D")   setContextLabel("Texts of the ", value + " genre");
+          else if (field === "Dossier_D") setContextLabel("Texts from the ", value + " dossier");
+          else if (field === "Archive_D") setContextLabel("The ", value + " archive");
+          else setContextLabel(value);
         });
       });
     }
@@ -667,22 +831,42 @@
     /** Populate details and refresh the names panel for a selected text row. */
     function displayRecord(record, tabulatorRow) {
       displayDetailOnly(record);
-      document.getElementById("main-table-label").textContent = "All Texts";
       if (tabulatorRow) setSelectedRow(tabulatorRow, "texts");
       loadNamesForText(record.TextID_D);
     }
 
     // ── Names for a specific text ─────────────────────────────
 
+    // Returns true if a names row's T_TID matches the current city filter
+    function nameMatchesCity(r) {
+      if (cityFilter === "all") return true;
+      const tid = str(r.T_TID).toUpperCase();
+      if (cityFilter === "nippur") return tid.startsWith("NIPPUR");
+      if (cityFilter === "ur")     return tid.startsWith("UR");
+      return true;
+    }
+
     function loadNamesForText(textID) {
       if (!namesTable) return;
       document.getElementById("names-search-input").value = "";
       hideAutocomplete();
       const rows = allNamesData.filter(
-        r => String(r.T_TID).trim() === String(textID).trim()
+        r => str(r.T_TID) === str(textID) && nameMatchesCity(r)
       );
       lastTextRows = rows;
-      setNamesData(rows, rows.length === 0 ? PH_NO_NAMES : PH_SELECT_TEXT);
+      namesTable.options.placeholder = rows.length === 0 ? PH_NO_NAMES : PH_SELECT_TEXT;
+      namesTable.setData(rows).then(() => {
+        clampNamesPanelHeight();
+        // If a person filter is active, highlight that person's row in the names table
+        if (!activePerson) return;
+        const { pid, pn } = activePerson;
+        const match = namesTable.getRows().find(r => {
+          const d = r.getData();
+          return str(d.P_PID) === pid &&
+                 str(d.P_PN)  === pn;
+        });
+        if (match) setSelectedRow(match, "names");
+      });
     }
 
     // ── Autocomplete ──────────────────────────────────────────
@@ -747,16 +931,17 @@
       }
 
       const filtered = allNamesData.filter(r =>
-        String(r.P_PN    || "").toLowerCase().includes(q) ||
-        String(r.P_Notes || "").toLowerCase().includes(q)
+        nameMatchesCity(r) && (
+          str(r.P_PN).toLowerCase().includes(q) ||
+          str(r.P_Notes).toLowerCase().includes(q)
+        )
       );
       setNamesData(filtered, filtered.length === 0 ? PH_NAME_NOT_FOUND : "");
 
       if (mainTableRef && filtered.length > 0) {
-        const matchingTIDs = new Set(filtered.map(r => String(r.T_TID || "").trim()));
-        mainTableRef.setFilter(r => matchingTIDs.has(String(r.TextID_D || "").trim()));
-        document.getElementById("main-table-label").textContent =
-          `Texts relating to the search '${query.trim()}'`;
+        const matchingTIDs = new Set(filtered.map(r => str(r.T_TID)));
+        mainTableRef.setFilter(r => matchingTIDs.has(str(r.TextID_D)));
+        setContextLabel("All Texts relating to the search ", query.trim());
       }
     }
 
@@ -809,7 +994,16 @@
 
       lastTextRows = null;
       setNamesData([], PH_SELECT_TEXT);
-      resetTextFilter();
+
+      // Reset both filters and labels together
+      contextLabel = { html: "All Texts" };
+      activePerson = null;
+      cityFilter   = "all";
+      document.querySelectorAll(".city-btn").forEach(b =>
+        b.classList.toggle("city-btn-active", b.dataset.city === "all")
+      );
+      if (mainTableRef) mainTableRef.clearFilter();
+      updateTableHeader();
 
       document.getElementById("box-textid").innerHTML    = "<span class='empty-state'>—</span>";
       document.getElementById("box-date").innerHTML      = "<span class='empty-state'>—</span>";
@@ -860,46 +1054,46 @@
 
         namesTable = new Tabulator("#names-table", {
           data: [],
-          layout: "fitDataFill",
+          layout: "fitColumns",
           height: "100%",
           placeholder: PH_SELECT_TEXT,
           columns: [
-            { title: "ID",               field: "T_TID",         width: 110 },
-            { title: "Date",             field: "Texts::Date_D", width: 90  },
-            { title: "PID",              field: "P_PID",         width: 60  },
-            { title: "PN",               field: "P_PN",          minWidth: 120 },
-            { title: "Identifying Info", field: "P_Notes",       minWidth: 180 },
-            { title: "Role in Text",     field: "P_Role",        minWidth: 130 }
+            { title: "ID",               field: "T_TID",         width: 110,  resizable: false },
+            { title: "Date",             field: "Texts::Date_D", width: 80,   resizable: false },
+            { title: "PID",              field: "P_PID",         width: 55,   resizable: false },
+            { title: "PN",               field: "P_PN",          width: 130,  resizable: false },
+            { title: "Identifying Info", field: "P_Notes",       width: 200,  resizable: false },
+            { title: "Role in Text",     field: "P_Role",        minWidth: 100, resizable: false }
           ]
         });
 
         namesTable.on("rowClick", (e, row) => {
           const data = row.getData();
-          const tid  = String(data.T_TID || "").trim();
-          const pid  = String(data.P_PID || "").trim();
-          const pn   = String(data.P_PN  || "").trim();
+          const tid  = str(data.T_TID);
+          const pid  = str(data.P_PID);
+          const pn   = str(data.P_PN);
 
           if (!pid && !pn) return;
 
-          // Collect all text IDs where this person (by PID + PN) appears
+          // Collect all text IDs where this person (by PID + PN) appears, respecting city filter
           const matchingTIDs = new Set(
             allNamesData
               .filter(r =>
-                String(r.P_PID || "").trim() === pid &&
-                String(r.P_PN  || "").trim() === pn
+                nameMatchesCity(r) &&
+                str(r.P_PID) === pid &&
+                str(r.P_PN)  === pn
               )
-              .map(r => String(r.T_TID || "").trim())
+              .map(r => str(r.T_TID))
           );
           if (matchingTIDs.size === 0) return;
 
-          const pidLabel = pid ? `(${pid})` : "(uncertain)";
-          const label    = pn
-            ? `Texts relating to ${pn} ${pidLabel}`
-            : `Texts relating to ${pidLabel}`;
+          const pidPart = pid ? ` (${pid})` : " (uncertain)";
+          const dynamic = pn ? `${pn}${pidPart}` : pidPart.trim();
 
           if (mainTableRef) {
-            mainTableRef.setFilter(r => matchingTIDs.has(String(r.TextID_D || "").trim()));
-            document.getElementById("main-table-label").textContent = label;
+            mainTableRef.setFilter(r => matchingTIDs.has(str(r.TextID_D)));
+            setContextLabel("All Texts relating to ", dynamic);
+            activePerson = { pid, pn }; // remember for highlighting when text row clicked
           }
 
           setSelectedRow(row, "names");
@@ -909,7 +1103,7 @@
             mainTableRef.on("dataFiltered", function highlightOnce() {
               mainTableRef.off("dataFiltered", highlightOnce);
               const match = mainTableRef.getRows("active").find(
-                r => String(r.getData().TextID_D || "").trim() === tid
+                r => str(r.getData().TextID_D) === tid
               );
               if (match) setSelectedRow(match, "texts");
             });
@@ -918,7 +1112,7 @@
           // Update the detail panel for the text this name row belongs to
           if (tid && allTextsData.length > 0) {
             const textRecord = allTextsData.find(
-              r => String(r.TextID_D || "").trim() === tid
+              r => str(r.TextID_D) === tid
             );
             if (textRecord) displayDetailOnly(textRecord);
           }
@@ -954,7 +1148,7 @@
         // Desired column order; fields not in this list are appended after
         const colOrder = [
           "TextID_D", "Date_D", "Ruler", "Year", "Month", "Day",
-          "Dossier_D", "Archive_D", "Genre_D", "Locus_D", "Stratum_D",
+          "Genre_D", "Dossier_D", "Archive_D", "Locus_D", "Stratum_D",
           "ExcNum_C", "MusAcc_C", "Mus_C",
           "Pnum", "TextID_C",
           "TNum", "TextNum_A", "TextID_A"
@@ -1004,23 +1198,122 @@
         });
 
         mainTableRef.on("rowClick",    (e, row) => displayRecord(row.getData(), row));
-        mainTableRef.on("dataFiltered", ()       => setTimeout(resizeColumnsToVisible, 0));
+        mainTableRef.on("dataFiltered", (filters, rows) => {
+          setTimeout(resizeColumnsToVisible, 0);
+          // Use the rows array passed by Tabulator — this is the definitive filtered result
+          document.getElementById("main-table-count").textContent = `| (${rows.length} texts)`;
+        });
 
+        mainTableRef.on("tableBuilt", () => updateTableHeader());
+
+        // ── Prefix → field mapping for column-targeted search ──
+        const PREFIX_MAP = {
+          "id":   "TextID_D",
+          "d":    "Date_D",
+          "r":    "Ruler",
+          "y":    "Year",
+          "m":    "Month",
+          "day":  "Day",
+          "dos":  "Dossier_D",
+          "arc":  "Archive_D",
+          "gen":  "Genre_D",
+          "loc":  "Locus_D",
+          "str":  "Stratum_D",
+          "exc":  "ExcNum_C",
+          "mus":  "Mus_C",
+          "acc":  "MusAcc_C",
+          "cdli": "TextID_C",
+          "arch": "TextNum_A"
+        };
+
+        // ── City toggle state ──────────────────────────────────
+
+        document.querySelectorAll(".city-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+            cityFilter = btn.dataset.city;
+            document.querySelectorAll(".city-btn").forEach(b =>
+              b.classList.toggle("city-btn-active", b === btn)
+            );
+            applyTextFilter();
+            // updateTableHeader called after filter settles
+            setTimeout(updateTableHeader, 30);
+          });
+        });
+
+        // ── Combined filter function ───────────────────────────
         const searchInput = document.getElementById("search-input");
 
-        searchInput.addEventListener("input", function () {
-          const q = this.value.trim().toLowerCase();
-          resetTextFilter();
-          if (q) {
-            mainTableRef.setFilter(row =>
-              Object.values(row).some(v => String(v).toLowerCase().includes(q))
-            );
+        function applyTextFilter() {
+          if (!mainTableRef) return;
+
+          const raw = searchInput.value.trim();
+
+          const pairs = [];
+          const usedRanges = [];
+
+          const prefixPattern = /(\w+):(\S+)/gi;
+          let match;
+          while ((match = prefixPattern.exec(raw)) !== null) {
+            const prefix = match[1].toLowerCase();
+            if (PREFIX_MAP[prefix] && match[2]) {
+              pairs.push({ field: PREFIX_MAP[prefix], term: match[2].toLowerCase() });
+              usedRanges.push([match.index, match.index + match[0].length]);
+            }
+          }
+
+          let freeText = raw;
+          [...usedRanges].reverse().forEach(([start, end]) => {
+            freeText = freeText.slice(0, start) + freeText.slice(end);
+          });
+          freeText = freeText.trim().toLowerCase();
+
+          // Update label text immediately (count updates via dataFiltered below)
+          if (raw) {
+            contextLabel = { html: escapeHtml("Texts matching ") + G(raw) };
+          } else {
+            contextLabel = { html: "All Texts" };
+          }
+          document.getElementById("main-table-label").innerHTML = compositeLabel();
+
+          const hasCityFilter = cityFilter !== "all";
+          const hasAnyFilter  = pairs.length > 0 || freeText || hasCityFilter;
+
+          if (!hasAnyFilter) {
+            // One atomic call: clear filter — fires exactly one dataFiltered with full count
+            mainTableRef.clearFilter();
+          } else {
+            // One atomic call: set filter — fires exactly one dataFiltered with correct count
+            mainTableRef.setFilter(row => {
+              const id = str(row.TextID_D).toUpperCase();
+              if (cityFilter === "nippur" && !id.startsWith("NIPPUR")) return false;
+              if (cityFilter === "ur"     && !id.startsWith("UR"))     return false;
+              for (const { field, term } of pairs) {
+                if (!str(row[field]).toLowerCase().includes(term)) return false;
+              }
+              if (freeText) {
+                const anyMatch = Object.values(row).some(v =>
+                  String(v).toLowerCase().includes(freeText)
+                );
+                if (!anyMatch) return false;
+              }
+              return true;
+            });
+          }
+        }
+
+        // Search commits on Enter only
+        searchInput.addEventListener("keydown", e => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            activePerson = null; // entering a new search clears person context
+            applyTextFilter();
           }
         });
 
         document.getElementById("clear-search").addEventListener("click", () => {
           searchInput.value = "";
           resetTextFilter();
+          applyTextFilter();
         });
       })
       .catch(err => console.error("Texts CSV error:", err));
