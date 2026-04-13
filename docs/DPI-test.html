@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DPI — How It Works</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+
+/* ══════════════════════════════════════
+   TOKENS
+══════════════════════════════════════ */
+:root {
+  --ink:        #1a1410;
+  --parchment:  #f5f0e8;
+  --cream:      #faf7f2;
+  --clay:       #8b4a2b;
+  --clay-light: #c4714a;
+  --clay-faint: #f0e2d8;
+  --gold:       #b8922a;
+  --gold-light: #e8c96a;
+  --slate:      #4a4540;
+  --border:     #d4c9b8;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background-color: var(--cream);
+  color: var(--ink);
+  font-family: 'Barlow', sans-serif;
+  font-weight: 300;
+  line-height: 1.75;
+  font-size: 16px;
+}
+
+/* ══════════════════════════════════════
+   COVER
+══════════════════════════════════════ */
+.cover {
+  background-color: var(--ink);
+  color: var(--parchment);
+  min-height: 52vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 5rem 6rem 4rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.cover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(0deg, transparent, transparent 39px,
+      rgba(184,146,42,0.06) 39px, rgba(184,146,42,0.06) 40px),
+    repeating-linear-gradient(90deg, transparent, transparent 79px,
+      rgba(184,146,42,0.04) 79px, rgba(184,146,42,0.04) 80px);
+}
+
+.cover-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold-light);
+  margin-bottom: 1.5rem;
+  opacity: 0.85;
+}
+
+.cover h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2.8rem, 6vw, 5rem);
+  font-weight: 300;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  max-width: 700px;
+}
+
+.cover h1 em {
+  font-style: italic;
+  color: var(--gold-light);
+}
+
+.cover-sub {
+  margin-top: 1.5rem;
+  font-size: 1rem;
+  font-weight: 400;
+  color: rgba(245,240,232,0.6);
+  letter-spacing: 0.04em;
+  max-width: 520px;
+}
+
+.cover-rule {
+  width: 3rem;
+  height: 2px;
+  background: var(--clay-light);
+  margin-top: 2.5rem;
+}
+
+/* ══════════════════════════════════════
+   LAYOUT
+══════════════════════════════════════ */
+main {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 5rem 2rem 8rem;
+}
+
+.section {
+  padding: 4rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.section:first-child { padding-top: 0; }
+.section:last-child  { border-bottom: none; }
+
+/* ══════════════════════════════════════
+   TYPOGRAPHY
+══════════════════════════════════════ */
+.section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--clay);
+  margin-bottom: 0.75rem;
+}
+
+h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.9rem, 3.5vw, 2.6rem);
+  font-weight: 400;
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+  color: var(--ink);
+}
+
+h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin-bottom: 0.6rem;
+  color: var(--ink);
+}
+
+p { margin-bottom: 1.1rem; }
+p:last-child { margin-bottom: 0; }
+
+a {
+  color: var(--clay);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.footnote {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--slate);
+  opacity: 0.7;
+  margin-top: 2rem;
+}
+
+/* ══════════════════════════════════════
+   PIPELINE STEPS
+══════════════════════════════════════ */
+.steps {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 2.5rem;
+}
+
+.step {
+  background: var(--parchment);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 1.75rem;
+}
+
+.step.highlight {
+  border-color: var(--clay);
+  background: var(--clay-faint);
+}
+
+.step-number {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.6rem;
+  display: block;
+}
+
+.step h3 { font-size: 1.1rem; margin-bottom: 0.6rem; }
+
+.step p {
+  font-size: 0.9rem;
+  color: var(--slate);
+  margin-bottom: 0;
+  line-height: 1.6;
+}
+
+/* ══════════════════════════════════════
+   CALLOUT
+══════════════════════════════════════ */
+.callout {
+  border-left: 3px solid var(--clay);
+  padding: 1.5rem 2rem;
+  background: var(--parchment);
+  margin: 2.5rem 0;
+  border-radius: 0 3px 3px 0;
+}
+
+.callout-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--clay);
+  margin-bottom: 0.75rem;
+}
+
+/* ══════════════════════════════════════
+   DATA TABLE
+══════════════════════════════════════ */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.75rem 0;
+  font-size: 0.9rem;
+}
+
+.data-table thead tr { border-bottom: 2px solid var(--clay); }
+
+.data-table th {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--clay);
+  padding: 0.5rem 1rem 0.75rem 0;
+  text-align: left;
+  font-weight: 400;
+}
+
+.data-table td {
+  padding: 0.65rem 1rem 0.65rem 0;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  color: var(--slate);
+}
+
+.data-table td:first-child {
+  color: var(--ink);
+  font-weight: 400;
+}
+
+/* ══════════════════════════════════════
+   METRICS ROW
+══════════════════════════════════════ */
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin: 2rem 0;
+}
+
+.metric {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  background: var(--parchment);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+}
+
+.metric-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.2rem;
+  font-weight: 300;
+  color: var(--clay);
+  line-height: 1;
+  margin-bottom: 0.4rem;
+}
+
+.metric-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--slate);
+  opacity: 0.8;
+}
+
+/* ══════════════════════════════════════
+   IMAGE PLACEHOLDER
+══════════════════════════════════════ */
+.img-placeholder {
+  background: var(--parchment);
+  border: 1px dashed var(--border);
+  border-radius: 3px;
+  height: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin: 2.5rem 0;
+  color: var(--slate);
+}
+
+.img-placeholder .img-icon { font-size: 1.5rem; opacity: 0.4; }
+
+.img-placeholder p {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.5;
+  margin: 0;
+}
+
+/* ══════════════════════════════════════
+   WORKFLOW DIAGRAM (embedded component)
+══════════════════════════════════════ */
+.dpi-wrap {
+  background: var(--cream);
+  padding: 2.5rem 2rem 2rem;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  margin: 2.5rem 0;
+  font-family: 'Barlow', sans-serif;
+}
+
+.dpi-section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--clay);
+  text-align: center;
+  margin-bottom: 0.9rem;
+}
+
+.dpi-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.dpi-box {
+  border-radius: 3px;
+  padding: 1rem 1.25rem;
+  font-family: 'Barlow', sans-serif;
+  font-weight: 400;
+}
+
+.box-collection {
+  background: var(--clay);
+  color: var(--parchment);
+  flex: 1.2;
+}
+
+.box-collection .box-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.15rem;
+  font-weight: 400;
+  line-height: 1.25;
+  margin-bottom: 0.2rem;
+}
+
+.box-collection .box-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(245,240,232,0.55);
+}
+
+.box-services {
+  background: var(--parchment);
+  border: 1px solid var(--border);
+  color: var(--ink);
+  flex: 1;
+}
+
+.box-services .box-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.4rem;
+}
+
+.box-services .box-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.box-services .box-items {
+  font-size: 0.8rem;
+  color: var(--slate);
+  line-height: 1.6;
+}
+
+.connector {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 28px;
+  position: relative;
+}
+
+.connector::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--border);
+}
+
+.connector-arrow {
+  width: 6px;
+  height: 6px;
+  border-right: 1px solid var(--clay);
+  border-bottom: 1px solid var(--clay);
+  transform: rotate(45deg);
+  position: relative;
+  z-index: 1;
+  background: var(--cream);
+  margin-top: 8px;
+}
+
+.api-container {
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  background: var(--parchment);
+}
+
+.api-sub-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--slate);
+  opacity: 0.6;
+  margin-bottom: 0.6rem;
+}
+
+.api-pills {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.pill {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  padding: 0.35rem 0.85rem;
+  border-radius: 2px;
+  font-weight: 400;
+}
+
+.pill-teal   { background: #0F6E56; color: #E1F5EE; }
+.pill-purple { background: #3C3489; color: #EEEDFE; }
+.pill-blue   { background: #185FA5; color: #E6F1FB; }
+.pill-green  { background: #3B6D11; color: #EAF3DE; }
+.pill-amber  { background: #854F0B; color: #FAEEDA; }
+
+.noapi-box {
+  background: var(--clay-faint);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 0.75rem 1rem;
+  margin-top: 0.6rem;
+  display: flex;
+  gap: 1.5rem;
+  align-items: baseline;
+}
+
+.noapi-box .noapi-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--clay);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.noapi-box .noapi-names {
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.82rem;
+  color: var(--slate);
+  font-weight: 400;
+}
+
+.gold-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.25rem 0;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.gold-table thead tr { border-bottom: 2px solid var(--clay); }
+
+.gold-table th {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--clay);
+  padding: 0.6rem 1rem;
+  text-align: left;
+  font-weight: 400;
+  background: var(--cream);
+}
+
+.gold-table td {
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+  font-size: 0.88rem;
+  color: var(--slate);
+  line-height: 1.5;
+}
+
+.gold-table tr:last-child td { border-bottom: none; }
+
+.gold-table td:first-child {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  font-weight: 600;
+  white-space: nowrap;
+  width: 160px;
+}
+
+.tier-1 td:first-child { color: var(--ink); }
+.tier-2 td:first-child { color: #185FA5; }
+.tier-3 td:first-child { color: #0F6E56; }
+.tier-4 td:first-child { color: #3C3489; }
+.tier-1 { background: var(--cream); }
+.tier-2 { background: #f5f9fe; }
+.tier-3 { background: #f2faf6; }
+.tier-4 { background: #f6f5fe; }
+
+.score-box {
+  background: var(--clay);
+  border-radius: 3px;
+  padding: 1.1rem 1.5rem;
+  text-align: center;
+}
+
+.score-box .score-mono {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(245,240,232,0.5);
+  margin-bottom: 0.35rem;
+}
+
+.score-box .score-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: var(--gold-light);
+  margin-bottom: 0.2rem;
+}
+
+.score-box .score-sub {
+  font-size: 0.78rem;
+  color: rgba(245,240,232,0.6);
+  font-family: 'Barlow', sans-serif;
+  font-weight: 300;
+}
+
+/* ══════════════════════════════════════
+   TRACKER — SHELL
+══════════════════════════════════════ */
+.tracker-wrap {
+  display: flex;
+  border: 0.5px solid rgba(0,0,0,0.22);
+  border-radius: 12px;
+  overflow: hidden;
+  font-size: 13px;
+  min-height: 600px;
+  background: #ffffff;
+  margin: 0 0 2.5rem;
+}
+
+/* ── LEFT SCORE COLUMN ── */
+.score-col {
+  width: 210px;
+  min-width: 210px;
+  border-right: 0.5px solid rgba(0,0,0,0.12);
+  background: #f5f5f3;
+  display: flex;
+  flex-direction: column;
+}
+
+.score-header { padding: 14px 16px 12px; border-bottom: 0.5px solid rgba(0,0,0,0.12); }
+.score-header .mono { font-size: 10px; color: #8a8a84; letter-spacing: 0.09em; text-transform: uppercase; margin-bottom: 4px; }
+.score-val { font-size: 30px; font-weight: 500; color: #1a1a18; line-height: 1.15; }
+.score-label { font-size: 11px; color: #5c5c58; margin-top: 2px; }
+
+.score-bar-wrap { padding: 12px 16px 14px; border-bottom: 0.5px solid rgba(0,0,0,0.12); }
+.tier-breakdown-label { font-size: 11px; color: #8a8a84; margin-bottom: 10px; }
+.tier-mini { margin-bottom: 9px; }
+.tier-mini:last-child { margin-bottom: 0; }
+.tier-mini-label { font-size: 11px; color: #5c5c58; display: flex; justify-content: space-between; margin-bottom: 4px; }
+.tier-mini-pct { color: #8a8a84; font-size: 11px; }
+.tier-mini-bar-track { height: 4px; background: rgba(0,0,0,0.12); border-radius: 2px; overflow: hidden; }
+.tier-mini-bar-fill { height: 100%; border-radius: 2px; }
+
+.row-list { flex: 1; overflow-y: auto; }
+
+.row-item {
+  padding: 10px 16px;
+  border-bottom: 0.5px solid rgba(0,0,0,0.12);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.row-item:hover { background: #ffffff; }
+
+.row-item.active {
+  background: #ffffff;
+  border-left: 2px solid #1D9E75;
+  padding-left: 14px;
+}
+
+.row-id { font-size: 12px; font-weight: 500; color: #1a1a18; }
+.row-sub { font-size: 11px; color: #8a8a84; }
+.row-dots { display: flex; gap: 3px; margin-top: 3px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; }
+.dot-on  { background: #1D9E75; }
+.dot-mid { background: #EF9F27; }
+.dot-off { background: rgba(0,0,0,0.22); }
+
+/* ── RIGHT DETAIL COLUMN ── */
+.detail-col { flex: 1; display: flex; flex-direction: column; background: #ffffff; min-width: 0; }
+.detail-header { padding: 14px 20px 12px; border-bottom: 0.5px solid rgba(0,0,0,0.12); }
+.detail-header .rec-id { font-size: 15px; font-weight: 500; color: #1a1a18; }
+.detail-header .rec-sub { font-size: 12px; color: #8a8a84; margin-top: 2px; }
+
+/* ── TABS ── */
+.tab-bar { display: flex; border-bottom: 0.5px solid rgba(0,0,0,0.12); padding: 0 20px; }
+
+.tab {
+  padding: 9px 14px;
+  font-size: 12px;
+  color: #5c5c58;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -0.5px;
+  user-select: none;
+}
+
+.tab.active { color: #1a1a18; border-bottom-color: #1D9E75; font-weight: 500; }
+.tab:hover:not(.active) { color: #1a1a18; }
+.tab-content { padding: 18px 20px; flex: 1; overflow-y: auto; display: none; }
+.tab-content.visible { display: block; }
+
+/* ── SHARED FIELD STYLES ── */
+.t-section-label {
+  font-size: 10px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #8a8a84;
+  margin: 16px 0 6px;
+  padding-bottom: 5px;
+  border-bottom: 0.5px solid rgba(0,0,0,0.12);
+}
+
+.t-section-label:first-child { margin-top: 0; }
+
+.field-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 6px 0;
+  border-bottom: 0.5px solid rgba(0,0,0,0.12);
+}
+
+.field-row:last-child { border-bottom: none; }
+.field-key { font-size: 12px; color: #5c5c58; flex-shrink: 0; padding-right: 12px; }
+.field-val { font-size: 12px; color: #1a1a18; text-align: right; display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; align-items: center; }
+
+/* ── BADGES ── */
+.badge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 11px; white-space: nowrap; }
+.badge-green  { background: #E1F5EE; color: #085041; }
+.badge-amber  { background: #FAEEDA; color: #633806; }
+.badge-gray   { background: #F1EFE8; color: #5F5E5A; }
+.badge-blue   { background: #E6F1FB; color: #0C447C; }
+.badge-purple { background: #EEEDFE; color: #3C3489; }
+.badge-teal   { background: #D4F0E6; color: #085041; }
+.not-recorded { font-size: 12px; color: #8a8a84; font-style: italic; }
+
+/* ── ARTIFACT TAB ── */
+.prose-block {
+  font-size: 13px;
+  color: #1a1a18;
+  line-height: 1.65;
+  padding: 4px 0 14px;
+  border-bottom: 0.5px solid rgba(0,0,0,0.12);
+}
+
+.tier-status-row { padding: 9px 0; border-bottom: 0.5px solid rgba(0,0,0,0.12); }
+.tier-status-row:last-child { border-bottom: none; }
+.tier-top { display: flex; justify-content: space-between; align-items: center; }
+.tier-link { font-size: 11px; color: #8a8a84; margin-top: 4px; padding-left: 14px; }
+.tier-link a { color: #0F6E56; text-decoration: none; }
+.tier-link a:hover { text-decoration: underline; }
+.sub-status { display: flex; flex-direction: column; gap: 3px; padding-left: 14px; margin-top: 4px; }
+.sub-status-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #8a8a84; }
+
+/* ── METADATA: conflict rows ── */
+.conflict-wrap { display: flex; flex-direction: column; gap: 3px; align-items: flex-end; }
+.conflict-row  { display: flex; gap: 4px; align-items: center; }
+
+/* ══════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════ */
+@media (max-width: 600px) {
+  .cover  { padding: 3rem 1.5rem 2.5rem; }
+  .steps  { grid-template-columns: 1fr; }
+  .metrics { grid-template-columns: 1fr 1fr; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════
+     COVER
+════════════════════════════════════ -->
+<header class="cover">
+  <div class="cover-label">Deep Past Initiative &nbsp;·&nbsp; How It Works</div>
+  <h1>How DPI Helps Bring Collections Online<br><em>recovering the first two-thirds of human history.</em></h1>
+  <p class="cover-sub">A guide to DPI's methodology, from physical artifact to digital record.</p>
+  <div class="cover-rule"></div>
+</header>
+
+<main>
+
+  <!-- ════════════════════════════════════
+       SECTION 1 — OUR EXPECTATIONS
+  ════════════════════════════════════ -->
+  <section class="section">
+    <div class="section-label">Our Expectations</div>
+    <h2>Modern Metrics</h2>
+    <p>DPI aims to define a standard of practice for the publication of cuneiform objects—one that holds scholars responsible for the complete recording of these historical artifacts. Publishing a text is no longer enough; its digital object must be updated in tandem.</p>
+  </section>
+
+  <!-- ════════════════════════════════════
+       SECTION 2 — GOLD STANDARD
+  ════════════════════════════════════ -->
+  <section class="section">
+    <div class="section-label">Our Practice</div>
+    <h2>DPI's Gold Standard</h2>
+    <p>DPI organizes around the principle that no cuneiform artifact is completely digitized until its textual record has been captured without loss of information. We call this the <strong>Gold Standard</strong>—a four-part framework covering institutional registration, digital documentation, physical recording, and complete textual reproduction.</p>
+
+    <div class="steps">
+      <div class="step">
+        <span class="step-number">Step 01</span>
+        <h3>Bring Collections Online</h3>
+        <p>DPI tracks collections that have catalogued and registered their cuneiform holdings, be it one artifact or hundreds of thousands.</p><br><p>In phase 2, we will offer services to aid institutions that lack the tools, expertise, or infrastructure to complete their catalogues independently.</p>
+      </div>
+      <div class="step highlight">
+        <span class="step-number">Step 02</span>
+        <h3>Alignment by the Gold Standard</h3>
+        <p>DPI assesses each collection against a register of databases to measure the completeness of each artifact's digital record. We align physical artifacts with online data and identify where further work is needed to close these gaps.</p>
+      </div>
+      <div class="step">
+        <span class="step-number">Step 03</span>
+        <h3>Evaluate Progress</h3>
+        <p>DPI surfaces patterns at both macro and micro scales—what percentage of all cuneiform artifacts are accessible to the world, which institutions need the most support, and where bottlenecks are slowing progress.</p>
+      </div>
+      <div class="step">
+        <span class="step-number">Step 04</span>
+        <h3>Lead Breakthrough Challenges</h3>
+        <p>DPI produces machine learning challenges to address those bottlenecks—including sign-recognition technology and automatic translation. The goal is to move from 10% to 100% complete digitization of all cuneiform records.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       SECTION 3 — DPI'S WORKFLOW
+  ════════════════════════════════════ -->
+  <section class="section">
+    <div class="section-label">Our Model</div>
+    <h2>DPI's Workflow</h2>
+    <p>Collections are assessed using <a href="https://database.factgrid.de/wiki/FactGrid:Cuneiform_Project">FactGrid</a>, made possible through Linked Open Data and international partnerships with experts and research projects, such as the <a href="https://cdli.earth">CDLI</a>, <a href="https://www.ebl.lmu.de/">eBL</a>, <a href="http://oracc.museum.upenn.edu/">ORACC</a>, <a href="http://bdtns.cesga.es/">BDTNS</a> and <a href="http://www.archibab.fr/">ARCHIBAB</a>.</p>
+    <p>Each artifact is evaluated on four levels, providing a metric that quantifies the completeness of each artifact's digital record and its institution's overall accessibility.</p><p> The diagram below illustrates the full workflow:</p>
+
+    <!-- Workflow Diagram -->
+    <div class="dpi-wrap">
+
+      <div class="dpi-section-label">Input</div>
+      <div class="dpi-row">
+        <div class="dpi-box box-collection">
+          <div class="box-sub">Institutional provision</div>
+          <div class="box-title">Artifact Collection</div>
+        </div>
+        <div class="dpi-box box-services">
+          <div class="box-label">Optional services</div>
+          <div class="box-title">DPI Support</div>
+          <div class="box-items">
+            · Record formation &amp; artifact analysis<br>
+            · Publication of materials
+          </div>
+        </div>
+      </div>
+
+      <div class="connector"><div class="connector-arrow"></div></div>
+
+      <div class="dpi-section-label">API Check</div>
+      <div class="api-container">
+        <div class="api-sub-label">API input</div>
+        <div class="api-pills">
+          <span class="pill pill-teal">CDLI</span>
+          <span class="pill pill-purple">eBL</span>
+          <span class="pill pill-blue">Hethport / TLH</span>
+          <span class="pill pill-green">Pleiades</span>
+          <span class="pill pill-amber">ARMEP</span>
+        </div>
+        <div class="noapi-box">
+          <span class="noapi-label">No API &nbsp;/&nbsp; Closed</span>
+          <span class="noapi-names">BDTNS &nbsp;·&nbsp; EbDA &nbsp;·&nbsp; ARCHIBAB</span>
+        </div>
+      </div>
+
+      <div class="connector"><div class="connector-arrow"></div></div>
+
+      <div class="dpi-section-label">Gold Standard Alignment</div>
+      <table class="gold-table">
+        <thead>
+          <tr>
+            <th>Level</th>
+            <th>What is measured</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="tier-1">
+            <td>1 — Institutional</td>
+            <td>Is the artifact registered through its institution's own records and website?</td>
+          </tr>
+          <tr class="tier-2">
+            <td>2 — Digital</td>
+            <td>Does the artifact appear in major open databases (CDLI, eBL, ORACC, etc.)?</td>
+          </tr>
+          <tr class="tier-3">
+            <td>3 — Physical</td>
+            <td>Are there photographs, RTI, or scanned physical documentation available?</td>
+          </tr>
+          <tr class="tier-4">
+            <td>4 — Textual</td>
+            <td>Is there transliteration and translation available in open, accessible formats?</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="connector"><div class="connector-arrow"></div></div>
+
+      <div class="dpi-section-label">Output</div>
+      <div class="score-box">
+        <div class="score-mono">Digitization Score</div>
+        <div class="score-title">DPI Score</div>
+        <div class="score-sub">Percentage to which an institution's collection returns positives in Tiers 1–4</div>
+      </div>
+
+    </div><!-- /dpi-wrap -->
+  </section>
+
+  <!-- ════════════════════════════════════
+       SECTION 4 — CASE STUDY: YBC
+  ════════════════════════════════════ -->
+  <section class="section">
+    <div class="section-label">Test Case</div>
+    <h2>The Yale Babylonian Collection</h2>
+
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-value">40,073</div>
+        <div class="metric-label">Total cuneiform artifacts</div>
+      </div>
+      <div class="metric">
+        <div class="metric-value">≤38%</div>
+        <div class="metric-label">Max. texts with transliteration</div>
+      </div>
+      <div class="metric">
+        <div class="metric-value">125</div>
+        <div class="metric-label">Texts with open translation (CDLI)</div>
+      </div>
+    </div>
+
+    <p>The Babylonian Collection at the Yale Peabody Museum holds <a href="https://lux.collections.yale.edu/view/results/objects?q=%7B%22AND%22%3A%5B%7B%22memberOf%22%3A%7B%22id%22%3A%22https%3A%2F%2Flux.collections.yale.edu%2Fdata%2Fset%2Fa996e468-616e-47b3-966a-ced654bc53a6%22%7D%7D%5D%7D&sort=itemArchiveSortId%3Aasc&searchLink=true">40,073 cuneiform artifacts</a>—one of the largest such holdings in the world. Despite its records being among the most digitized, significant discrepancies remain across databases. Yale's own website associates <a href="https://lux.collections.yale.edu/view/results/objects?q=%7B%22AND%22%3A%5B%7B%22memberOf%22%3A%7B%22id%22%3A%22https%3A%2F%2Flux.collections.yale.edu%2Fdata%2Fset%2Fa996e468-616e-47b3-966a-ced654bc53a6%22%7D%7D%2C%7B%22text%22%3A%22CDLI%22%7D%5D%7D">34,455 artifacts with CDLI</a> and <a href="https://lux.collections.yale.edu/view/results/objects?q=%7B%22AND%22%3A%5B%7B%22memberOf%22%3A%7B%22id%22%3A%22https%3A%2F%2Flux.collections.yale.edu%2Fdata%2Fset%2Fa996e468-616e-47b3-966a-ced654bc53a6%22%7D%7D%2C%7B%22text%22%3A%22eBL%22%7D%5D%7D">38,284 with eBL</a>; <a href="https://www.ebl.lmu.de/library/search/?museum=YALE_PEABODY_COLLECTION">eBL's own count suggests 39,280</a> and <a href="https://cdli.earth/search?collection=Yale">CDLI suggests roughly 35,440</a>. These figures must be reconciled before any record can be considered complete.</p>
+
+    <p>The transliteration picture is similarly inconsistent. CDLI reports 13,153 texts with transliteration; eBL reports 2,768—a maximum coverage of 38%. Translations are even sparser: CDLI lists 125, though this figure excludes the many translations held in databases that do not openly share data, such as <a href="https://www.archibab.fr/textes?coll=Yale%20Peabody%20Museum%20of%20Natural%20History&trloo=false&dmin=2020&dmax=0&o=ref,id&page=1&size=25&count=3526">ARCHIBAB (3,526 texts)</a>. This, too, must be addressed.</p>
+
+    <div class="callout">
+      <div class="callout-label">UI Mock-up — YPM BC 005483</div>
+      <p>When examining individual collections, DPI surfaces a granular view of what work remains at artifact level. The interactive mock-up below walks through YPM BC 005483 across four tabs: Artifact, Metadata, Digital Copy, and Textual data. The other items in the list are illustrative only.</p>
+    </div>
+
+    <!-- ── TRACKER MOCK-UP ── -->
+    <div class="tracker-wrap">
+
+      <!-- LEFT: SCORE COLUMN -->
+      <div class="score-col">
+        <div class="score-header">
+          <div class="mono">Overall DPI Score</div>
+          <div class="score-val">71%</div>
+          <div class="score-label">Yale Babylonian Collection</div>
+        </div>
+
+        <div class="score-bar-wrap">
+          <div class="tier-breakdown-label">Tier breakdown</div>
+          <div class="tier-mini">
+            <div class="tier-mini-label"><span>T1 — Institutional registration</span><span class="tier-mini-pct">100%</span></div>
+            <div class="tier-mini-bar-track"><div class="tier-mini-bar-fill" style="width:100%;background:#1D9E75;"></div></div>
+          </div>
+          <div class="tier-mini">
+            <div class="tier-mini-label"><span>T2 — Digital registry</span><span class="tier-mini-pct">95%</span></div>
+            <div class="tier-mini-bar-track"><div class="tier-mini-bar-fill" style="width:95%;background:#1D9E75;"></div></div>
+          </div>
+          <div class="tier-mini">
+            <div class="tier-mini-label"><span>T3 — Artifact information</span><span class="tier-mini-pct">20%</span></div>
+            <div class="tier-mini-bar-track"><div class="tier-mini-bar-fill" style="width:20%;background:#EF9F27;"></div></div>
+          </div>
+          <div class="tier-mini">
+            <div class="tier-mini-label"><span>T4 — Data alignment</span><span class="tier-mini-pct">68%</span></div>
+            <div class="tier-mini-bar-track"><div class="tier-mini-bar-fill" style="width:68%;background:#EF9F27;"></div></div>
+          </div>
+        </div>
+
+        <div class="row-list">
+          <div class="row-item active">
+            <span class="row-id">YPM BC 005483</span>
+            <span class="row-sub">Neo-Assyrian · cylinder</span>
+            <div class="row-dots"><span class="dot dot-on"></span><span class="dot dot-on"></span><span class="dot dot-mid"></span><span class="dot dot-on"></span></div>
+          </div>
+          <div class="row-item">
+            <span class="row-id">YPM BC 039428</span>
+            <span class="row-sub">Ur III · tablet</span>
+            <div class="row-dots"><span class="dot dot-on"></span><span class="dot dot-on"></span><span class="dot dot-mid"></span><span class="dot dot-off"></span></div>
+          </div>
+          <div class="row-item">
+            <span class="row-id">YPM BC 039895</span>
+            <span class="row-sub">Neo-Babylonian · seal</span>
+            <div class="row-dots"><span class="dot dot-on"></span><span class="dot dot-off"></span><span class="dot dot-off"></span><span class="dot dot-off"></span></div>
+          </div>
+          <div class="row-item">
+            <span class="row-id">YPM BC 039881</span>
+            <span class="row-sub">Old Babylonian · tablet</span>
+            <div class="row-dots"><span class="dot dot-on"></span><span class="dot dot-on"></span><span class="dot dot-on"></span><span class="dot dot-on"></span></div>
+          </div>
+          <div class="row-item">
+            <span class="row-id">YPM BC 011280</span>
+            <span class="row-sub">Ur III · tablet</span>
+            <div class="row-dots"><span class="dot dot-on"></span><span class="dot dot-mid"></span><span class="dot dot-off"></span><span class="dot dot-off"></span></div>
+          </div>
+        </div>
+      </div><!-- /score-col -->
+
+      <!-- RIGHT: DETAIL COLUMN -->
+      <div class="detail-col">
+        <div class="detail-header">
+          <div class="rec-id">YPM BC 005483</div>
+          <div class="rec-sub">Collection artifact 1 of 40,073</div>
+        </div>
+
+        <div class="tab-bar">
+          <div class="tab active" onclick="switchTab('artifact')">Artifact</div>
+          <div class="tab" onclick="switchTab('metadata')">Metadata</div>
+          <div class="tab" onclick="switchTab('digital')">Digital copy</div>
+          <div class="tab" onclick="switchTab('textual')">Textual data</div>
+        </div>
+
+        <!-- TAB 1: ARTIFACT -->
+        <div class="tab-content visible" id="tab-artifact">
+
+          <div class="t-section-label">Overview</div>
+          <div class="prose-block">
+            <strong>YPM BC 005483</strong> is a <strong>clay cylinder</strong> dated to the
+            <strong>Neo-Assyrian period</strong> (ca. 911–612 BC) excavated from the city of
+            <strong>Uruk</strong> (mod. Warka). It is an <strong>official display inscription</strong>
+            recording <strong>Esarhaddon's restoration of the Eanna temple</strong>.
+          </div>
+
+          <div class="t-section-label">Tier status (93.75%)</div>
+
+          <div class="tier-status-row">
+            <div class="tier-top">
+              <span class="field-key">T1 — Institutional data (100%)</span>
+              <span class="badge badge-green">Complete</span>
+            </div>
+            <div class="tier-link">↳ <a href="https://lux.collections.yale.edu/view/object/b9927ab3-d2cf-427e-b0bd-50f39d80ebc9" target="_blank">Link to Yale's LUX page</a></div>
+          </div>
+
+          <div class="tier-status-row">
+            <div class="tier-top">
+              <span class="field-key">T2 — Digital registry (100%)</span>
+              <span class="badge badge-green">Complete</span>
+            </div>
+            <div class="tier-link">↳ <a href="https://cdli.earth/artifacts/297261" target="_blank">CDLI record</a> &nbsp;·&nbsp; <a href="https://www.ebl.lmu.de/library/NBC.2510" target="_blank">eBL record</a></div>
+          </div>
+
+          <div class="tier-status-row">
+            <div class="tier-top">
+              <span class="field-key">T3 — Artifact information (75%)</span>
+              <span class="badge badge-amber">Partial</span>
+            </div>
+            <div class="sub-status">
+              <div class="sub-status-row"><span>↳ Overview</span><span class="badge badge-green">Complete</span></div>
+              <div class="sub-status-row"><span>↳ Metadata</span><span class="badge badge-green">Complete</span></div>
+              <div class="sub-status-row"><span>↳ Digital copy</span><span class="badge badge-amber">Partial</span></div>
+              <div class="sub-status-row"><span>↳ Textual data</span><span class="badge badge-green">Complete</span></div>
+            </div>
+          </div>
+
+          <div class="tier-status-row">
+            <div class="tier-top">
+              <span class="field-key">T4 — Data alignment (100%)</span>
+              <span class="badge badge-green">Complete</span>
+            </div>
+          </div>
+
+        </div><!-- /tab-artifact -->
+
+        <!-- TAB 2: METADATA -->
+        <div class="tab-content" id="tab-metadata">
+
+          <div class="t-section-label">Language &amp; content</div>
+
+          <div class="field-row">
+            <span class="field-key">Language</span>
+            <div class="field-val"><span class="badge badge-gray">Akkadian</span><span class="badge badge-blue">CDLI</span><span class="badge badge-green">ORACC</span></div>
+          </div>
+          <div class="field-row">
+            <span class="field-key">Script</span>
+            <div class="field-val"><span class="badge badge-gray">Cuneiform — Neo-Assyrian</span><span class="badge badge-blue">CDLI</span></div>
+          </div>
+          <div class="field-row">
+            <span class="field-key">Genre</span>
+            <div class="field-val"><span class="badge badge-gray">Royal inscription — building text</span><span class="badge badge-green">ORACC</span></div>
+          </div>
+          <div class="field-row">
+            <span class="field-key">Subject</span>
+            <div class="field-val"><span class="badge badge-gray">Restoration of Eanna temple, Uruk</span><span class="badge badge-green">ORACC</span></div>
+          </div>
+          <div class="field-row">
+            <span class="field-key">Witness to composite</span>
+            <div class="field-val"><span class="badge badge-gray">RINAP 4 Esarhaddon 133 · ex. 003</span><span class="badge badge-blue">CDLI</span><span class="badge badge-green">ORACC</span></div>
+          </div>
+          <div class="field-row">
+            <span class="field-key">Line count</span>
+            <div class="field-val"><span class="badge badge-gray">43 lines</span><span class="badge badge-blue">CDLI</span></div>
+          </div>
+
+          <div class="t-section-label">Physical data</div>
+
+          <div class="field-row">
+            <span class="field-key">Object type</span>
+            <div class="field-val conflict-wrap">
+              <div class="conflict-row"><span class="badge badge-gray">Cylinder</span><span class="badge badge-teal">YBC</span><span class="badge badge-blue">CDLI</span></div>
+              <div class="conflict-row"><span class="badge badge-gray">Prism fragment</span><span class="badge badge-purple">eBL</span></div>
+            </div>
+          </div>
+          <div class="field-row">
+            <span class="field-key">Material</span>
+            <div class="field-val"><span class="badge badge-gray">Clay</span><span class="badge badge-teal">YBC</span><span class="badge badge-blue">CDLI</span><span class="badge badge-purple">eBL</span></div>
+          </div>
+          <div class="field-row">
+            <span class="field-key">Dimensions</span>
+            <div class="field-val"><span class="not-recorded">Not recorded</span></div>
+          </div>
+          <div class="field-row">
+            <span class="field-key">Condition / preservation</span>
+            <div class="field-val"><span class="not-recorded">Not recorded</span></div>
+          </div>
+          <div class="field-row">
+            <span class="field-key">Script</span>
+            <div class="field-val"><span class="badge badge-gray">Cuneiform — Neo-Assyrian</span><span class="badge badge-blue">CDLI</span></div>
+          </div>
+          <div class="field-row">
+            <span class="field-key">Provenience</span>
+            <div class="field-val"><span class="badge badge-gray">Uruk (mod. Warka)</span><span class="badge badge-teal">YBC</span><span class="badge badge-blue">CDLI</span></div>
+          </div>
+
+          <div class="t-section-label">Catalogue data</div>
+
+          <div class="field-row">
+            <span class="field-key">Museum number</span>
+            <div class="field-val conflict-wrap">
+              <div class="conflict-row"><span class="badge badge-gray">YPM BC 005483</span><span class="badge badge-teal">YBC</span></div>
+              <div class="conflict-row"><span class="badge badge-gray">NBC 02510</span><span class="badge badge-blue">CDLI</span><span class="badge badge-purple">eBL</span></div>
+            </div>
+          </div>
+          <div class="field-row">
+            <span class="field-key">Period</span>
+            <div class="field-val"><span class="badge badge-gray">Neo-Assyrian (ca. 911–612 BC)</span><span class="badge badge-teal">YBC</span><span class="badge badge-blue">CDLI</span></div>
+          </div>
+          <div class="field-row">
+            <span class="field-key">Dates referenced</span>
+            <div class="field-val"><span class="badge badge-gray">Esarhaddon 00.00.00</span><span class="badge badge-blue">CDLI</span></div>
+          </div>
+          <div class="field-row">
+            <span class="field-key">CDLI number</span>
+            <div class="field-val"><span class="badge badge-blue">P297261</span></div>
+          </div>
+          <div class="field-row">
+            <span class="field-key">ORACC composite</span>
+            <div class="field-val"><span class="badge badge-gray">RINAP 4 Esarhaddon 133 (Q003362)</span><span class="badge badge-green">ORACC</span></div>
+          </div>
+          <div class="field-row">
+            <span class="field-key">Genre</span>
+            <div class="field-val"><span class="badge badge-gray">Official / display (witness)</span><span class="badge badge-blue">CDLI</span><span class="badge badge-green">ORACC</span></div>
+          </div>
+          <div class="field-row">
+            <span class="field-key">Collection</span>
+            <div class="field-val"><span class="badge badge-gray">Nies Babylonian Collection · YBC</span><span class="badge badge-blue">CDLI</span></div>
+          </div>
+          <div class="field-row">
+            <span class="field-key">Accession number</span>
+            <div class="field-val"><span class="not-recorded">Not recorded</span></div>
+          </div>
+          <div class="field-row">
+            <span class="field-key">Pleiades URI</span>
+            <div class="field-val"><span class="badge badge-gray">Uruk · 912986</span><span class="badge badge-green">Pleiades</span></div>
+          </div>
+
+        </div><!-- /tab-metadata -->
+
+        <!-- TAB 3: DIGITAL COPY -->
+        <div class="tab-content" id="tab-digital">
+
+          <div class="t-section-label">Image data</div>
+
+          <div class="field-row">
+            <span class="field-key">Line art / handcopy</span>
+            <div class="field-val"><span class="badge badge-green">Available</span><span class="badge badge-blue">CDLI</span></div>
+          </div>
+          <div class="field-row">
+            <span class="field-key">Photograph</span>
+            <div class="field-val"><span class="badge badge-amber">Not confirmed</span></div>
+          </div>
+          <div class="field-row">
+            <span class="field-key">RTI / fat-cross scan</span>
+            <div class="field-val"><span class="not-recorded">Not recorded</span></div>
+          </div>
+          <div class="field-row">
+            <span class="field-key">3D model</span>
+            <div class="field-val"><span class="not-recorded">Not recorded</span></div>
+          </div>
+          <div class="field-row">
+            <span class="field-key">IIIF manifest</span>
+            <div class="field-val"><span class="not-recorded">Not recorded</span></div>
+          </div>
+
+        </div><!-- /tab-digital -->
+
+        <!-- TAB 4: TEXTUAL DATA -->
+        <div class="tab-content" id="tab-textual">
+
+          <div class="t-section-label">Text records</div>
+
+          <div class="field-row">
+            <span class="field-key">Transliteration</span>
+            <div class="field-val"><span class="badge badge-green">Confirmed</span><span class="badge badge-blue">CDLI</span><span class="badge badge-green">ORACC</span></div>
+          </div>
+          <div class="field-row">
+            <span class="field-key">Translation</span>
+            <div class="field-val"><span class="badge badge-green">Confirmed</span><span class="badge badge-green">ORACC</span></div>
+          </div>
+          <div class="field-row">
+            <span class="field-key">Lemmatization</span>
+            <div class="field-val"><span class="badge badge-green">Confirmed</span><span class="badge badge-green">ORACC</span></div>
+          </div>
+          <div class="field-row">
+            <span class="field-key">Named entity recognition</span>
+            <div class="field-val"><span class="badge badge-green">Confirmed</span><span class="badge badge-green">ORACC</span></div>
+          </div>
+          <div class="field-row">
+            <span class="field-key">Bibliography / references</span>
+            <div class="field-val"><span class="badge badge-green">Confirmed</span><span class="badge badge-blue">CDLI</span><span class="badge badge-green">ORACC</span></div>
+          </div>
+
+          <div class="t-section-label">Key references</div>
+
+          <div class="field-row">
+            <span class="field-key">Primary edition</span>
+            <div class="field-val" style="font-size:12px;">Leichty, RINAP 4 (2011), no. 133</div>
+          </div>
+          <div class="field-row">
+            <span class="field-key">Created by</span>
+            <div class="field-val" style="font-size:12px;">Leichty, Frame — RINAP Project</div>
+          </div>
+          <div class="field-row">
+            <span class="field-key">Lemmatized by</span>
+            <div class="field-val" style="font-size:12px;">Jamie Novotny, 2010</div>
+          </div>
+          <div class="field-row">
+            <span class="field-key">Licence</span>
+            <div class="field-val"><span class="badge badge-gray">CC BY-SA 3.0</span><span class="badge badge-green">ORACC</span></div>
+          </div>
+
+        </div><!-- /tab-textual -->
+
+      </div><!-- /detail-col -->
+    </div><!-- /tracker-wrap -->
+
+  </section><!-- /case study -->
+
+  <p class="footnote">Deep Past Initiative &nbsp;·&nbsp; <a href="https://www.deeppast.org">deeppast.org</a></p>
+
+</main>
+
+<script>
+function switchTab(name) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('visible'));
+  document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('visible');
+  const idx = ['artifact','metadata','digital','textual'].indexOf(name);
+  document.querySelectorAll('.tab')[idx].classList.add('active');
+}
+</script>
+
+</body>
+</html>
